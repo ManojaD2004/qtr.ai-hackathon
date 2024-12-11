@@ -1,40 +1,47 @@
 import React from "react";
 
-function SidePanel() {
+function SidePanel({ routePage = "" }) {
   return (
-    <div className="w-24 bg-slate-50 border-r-[1px] border-slate-200 h-full flex flex-col items-center justify-between space-y-7 py-5">
-      <div className="flex flex-col items-center justify-between space-y-5">
+    <div className="w-24 bg-slate-50/50 border-r-[1px] border-slate-200 h-full flex flex-col items-center justify-between space-y-7 py-5">
+      <div className="flex flex-col items-center justify-between space-y-7">
         <SPTopComp />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios/100/goal--v1.png"
           altText="goal--v1"
+          isSelected={routePage === "goals"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios/250/checked.png"
           altText="checked"
+          isSelected={routePage === "tasks"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/material-rounded/100/calendar--v1.png"
           altText="calendar--v1"
+          isSelected={routePage === "planner"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-filled/100/book.png"
           altText="book"
+          isSelected={routePage === "journal"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-filled/100/apple-notes.png"
           altText="apple-notes"
+          isSelected={routePage === "notes"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-glyphs/100/running--v1.png"
           altText="running--v1"
+          isSelected={routePage === "habits"}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios/100/clock--v3.png"
           altText="clock--v3"
+          isSelected={routePage === "focus"}
         />
       </div>
-      <div className="flex flex-col items-center justify-between space-y-5">
+      <div className="flex flex-col items-center justify-between space-y-7">
         <SpImgComp
           imgSrc="https://img.icons8.com/ios/100/sunrise.png"
           altText="sunrise"
@@ -81,7 +88,7 @@ function SpUserImgComp({ imgSrc, altText = "icon placeholder" }) {
   );
 }
 
-function SpImgComp({ imgSrc, altText = "icon placeholder" }) {
+function SpImgComp({ imgSrc, altText = "icon placeholder", isSelected = false }) {
   return (
     <div className="cursor-pointer group relative w-[30px] h-[30px]">
       <picture>
@@ -89,7 +96,8 @@ function SpImgComp({ imgSrc, altText = "icon placeholder" }) {
         <img
           src={imgSrc}
           alt={altText}
-          className="invert-[35%] transition-all duration-300 ease-out w-full -h-full pointer-events-none group-hover:invert-0 absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
+          style={{filter: isSelected && "invert(0%)"}}
+          className="invert-[40%] transition-all duration-300 ease-out w-full -h-full pointer-events-none group-hover:invert-0 absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
         />
       </picture>
     </div>
