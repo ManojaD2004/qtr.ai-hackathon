@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Qtr.Ai Hackathon",
-  description: "An App for Qtr.Ai Hackathon",
+  title: "QTR.Ai Hackathon",
+  description: "An App for QTR.Ai Hackathon",
 };
 
 export default function RootLayout({ children }) {
