@@ -1,7 +1,7 @@
 "use client";
 import SidePanel from "@/components/SidePanel";
 
-const PAGE_NAME = "habits";
+const PAGE_NAME = "focus";
 
 export default function Home() {
   return (

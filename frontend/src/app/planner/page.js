@@ -1,7 +1,7 @@
 "use client";
 import SidePanel from "@/components/SidePanel";
 
-const PAGE_NAME = "journal";
+const PAGE_NAME = "planner";
 
 export default function Home() {
   return (
