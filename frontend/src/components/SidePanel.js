@@ -3,7 +3,12 @@ import { getProviders, signIn, signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 
-function SidePanel({ routePage = "", isLoggedIn = false, userDeatils = {} }) {
+function SidePanel({
+  routePage = "",
+  isLoggedIn = false,
+  userDeatils = {},
+  plusRoute = null,
+}) {
   const [prdId, setPrdId] = useState();
   useEffect(() => {
     async function execThis() {
@@ -16,7 +21,7 @@ function SidePanel({ routePage = "", isLoggedIn = false, userDeatils = {} }) {
   return (
     <div className="w-24 bg-slate-50/20 border-r-[1px] border-slate-200 h-full flex flex-col items-center justify-between space-y-7 py-5">
       <div className="flex flex-col items-center justify-between space-y-7">
-        <SPTopComp />
+        <SPTopComp plusRoute={plusRoute} />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios/100/goal--v1.png"
           altText="goal--v1"
@@ -95,21 +100,23 @@ function SidePanel({ routePage = "", isLoggedIn = false, userDeatils = {} }) {
   );
 }
 
-function SPTopComp() {
+function SPTopComp({ plusRoute }) {
   return (
-    <div className="bg-purple-400 mb-1 rounded-full h-[45px] w-[45px] relative cursor-pointer transition-all duration-300 ease-out group hover:bg-purple-300 hover:scale-125">
-      <picture>
-        <source
-          srcSet="https://img.icons8.com/android/100/plus.png"
-          type="image/png"
-        />
-        <img
-          src="https://img.icons8.com/android/100/plus.png"
-          alt="plus"
-          className="invert w-[25px] h-[25px] transition-all duration-300 ease-out absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 pointer-events-none"
-        />
-      </picture>
-    </div>
+    <a href={plusRoute} target="_self">
+      <div className="bg-purple-400 mb-1 rounded-full h-[45px] w-[45px] relative cursor-pointer transition-all duration-300 ease-out group hover:bg-purple-300 hover:scale-125">
+        <picture>
+          <source
+            srcSet="https://img.icons8.com/android/100/plus.png"
+            type="image/png"
+          />
+          <img
+            src="https://img.icons8.com/android/100/plus.png"
+            alt="plus"
+            className="invert w-[25px] h-[25px] transition-all duration-300 ease-out absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 pointer-events-none"
+          />
+        </picture>
+      </div>
+    </a>
   );
 }
 

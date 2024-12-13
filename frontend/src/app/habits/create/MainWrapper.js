@@ -13,6 +13,8 @@ import "react-toastify/dist/ReactToastify.css";
         </div> */
 }
 
+const PAGE_NAME = "habits";
+
 export default function MainWrapper() {
   const { data: session, status } = useSession();
   const [startDate, setStartDate] = useState(dayjs(new Date()));
@@ -22,6 +24,7 @@ export default function MainWrapper() {
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
+        routePage={PAGE_NAME}
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
@@ -30,7 +33,9 @@ export default function MainWrapper() {
         position="top-right"
       />
       <div className="flex-1 text-6xl flex flex-col space-y-5  py-5 px-5">
-        <h1 className="text-5xl font-semibold text-slate-800">Create Habbit 🤖</h1>
+        <h1 className="text-5xl font-semibold text-slate-800">
+          Create Habbit 🤖
+        </h1>
         <div className="w-full h-[2px] bg-slate-200"></div>
         <div className="bg-slate-50/75 rounded-lg shadow-lg w-full p-7">
           <form className="flex flex-col space-y-7 font-semibold">
