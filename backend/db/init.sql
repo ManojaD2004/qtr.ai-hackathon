@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS ping (
-    pong VARCHAR2(255)
+    pong VARCHAR(255)
 );
 
 
