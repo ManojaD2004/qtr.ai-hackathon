@@ -1,5 +1,4 @@
-"use client";
-import capWord from "@/helpers/CapWord";
+import capWord from "@/helpers/capWord";
 import { getProviders, signIn, signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";

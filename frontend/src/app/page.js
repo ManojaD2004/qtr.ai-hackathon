@@ -1,6 +1,5 @@
 "use client";
-import SidePanel from "@/components/SidePanel";
-import Provider from "@/helpers/Provider";
+import Provider from "@/components/Provider";
 import MainWrapper from "./MainWrapper";
 
 export default function Home() {
