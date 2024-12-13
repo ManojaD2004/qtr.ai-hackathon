@@ -76,7 +76,8 @@ function SidePanel({
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-filled/100/sunrise.png"
           altText="sunrise"
-          tooltipData="sunrise"
+          tooltipData="dashboard"
+          route="/dashboard"
         />
         {isLoggedIn ? (
           <div onClick={() => signOut({ callbackUrl: "/" })}>
