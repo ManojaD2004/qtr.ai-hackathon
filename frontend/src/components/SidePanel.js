@@ -193,6 +193,7 @@ function ToolTip({ data }) {
         stiffness: 500,
         velocity: 2,
       }}
+      className="w-full h-full relative"
     >
       <div className="bg-slate-50 absolute translate-x-1/2 -translate-y-1/2 top-1/2 left-1/4 font-semibold text-nowrap shadow-lg z-50 p-2 shadow-slate-300 h-auto">
         {data}
