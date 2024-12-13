@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const chalk = require("chalk");
+const { waitFor } = require("./helpers/wait");
 
 async function main() {
   dotenv.config({ path: "./.env.local" });
@@ -40,15 +41,24 @@ async function main() {
     }
   });
 
-  app.listen(PORT, async () => {
-    try {
-      console.log(`Server is running on Port: ${PORT}`);
-      await clientDb.connect();
-      console.log(`Database Postgres is connected!`);
-    } catch (error) {
-      console.log(`Error Connectiong to Postgres!`);
-      console.log(error);
+  app.listen(PORT, () => {
+    console.log(`Server is running on Port: ${PORT}`);
+    async function connectToPostgres(count ) {
+      try {
+        await clientDb.connect();
+        console.log(`Database Postgres is connected!`);
+      } catch (error) {
+        console.log(`Error Connectiong to Postgres!`);
+        console.log(error);
+        if (count === 5) {
+          console.log("Failed to connected to Database postgres!");
+          return;
+        }
+        await waitFor(3000);
+        connectToPostgres(count + 1);
+      }
     }
+    connectToPostgres(0);
   });
 }
 main();

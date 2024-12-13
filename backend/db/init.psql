@@ -4,7 +4,7 @@ create table if not exists ping (
 
 delete from ping
  where true;
-insert into ping values ( "Yes, DB is connected, and is Working!" );
+insert into ping values ( 'Yes, DB is connected, and is Working!' );
 
 create table if not exists users (
    id         serial primary key,

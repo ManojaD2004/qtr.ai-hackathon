@@ -1,6 +1,6 @@
 FROM postgres
 
-COPY ./db/migrations.sql /docker-entrypoint-initdb.d
+COPY ./db/migrations.psql /docker-entrypoint-initdb.d/migrations.sql
 
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=qtr
