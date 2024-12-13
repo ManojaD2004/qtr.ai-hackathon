@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function MainWrapper() {
   const { data: session, status } = useSession();
   const [startDate, setStartDate] = useState(dayjs(new Date()));
-  const [endDate, setEndDate] = useState(dayjs(new Date()));
+  const [endDate, setEndDate] = useState(null);
   const [checkPoints, setCheckPoints] = useState([]);
   const [habbitName, setHabbitName] = useState("");
   return (
@@ -30,7 +30,7 @@ export default function MainWrapper() {
         position="top-right"
       />
       <div className="flex-1 text-6xl flex flex-col space-y-5  py-5 px-5">
-        <h1 className="text-5xl font-semibold text-slate-800">Create Habbit</h1>
+        <h1 className="text-5xl font-semibold text-slate-800">Create Habbit 🤖</h1>
         <div className="w-full h-[2px] bg-slate-200"></div>
         <div className="bg-slate-50/75 rounded-lg shadow-lg w-full p-7">
           <form className="flex flex-col space-y-7 font-semibold">
@@ -48,7 +48,7 @@ export default function MainWrapper() {
             </div>
             <div className="text-lg space-x-9 flex">
               <div className="space-x-4 flex items-center">
-                <div className="inline-block w-44">Select Start Date :</div>
+                <div className="inline-block w-44">Select Start Date:</div>
                 <DatePicker
                   value={startDate}
                   onChange={(d) => {
@@ -72,6 +72,20 @@ export default function MainWrapper() {
                 <div>Add Checkpoints :</div>
                 <div
                   onClick={() => {
+                    if (startDate === null) {
+                      toast("Select Start Date 🕒");
+                      return;
+                    }
+                    if (endDate === null) {
+                      toast("Select End Date 🕜");
+                      return;
+                    }
+                    if (startDate.toDate() > endDate.toDate()) {
+                      toast("Start Date cannot be greater than End Date 👀", {
+                        className: "text-red-600 !bg-yellow-100",
+                      });
+                      return;
+                    }
                     for (let i = 0; i < checkPoints.length; i++) {
                       if (
                         checkPoints[i].cName === "" ||
@@ -131,9 +145,9 @@ export default function MainWrapper() {
                     <div className="flex space-x-4 items-center">
                       <div
                         onClick={() => {
-                           const newCheckPoints = [...checkPoints];
-                           newCheckPoints.splice(index, 1);
-                           setCheckPoints(newCheckPoints);
+                          const newCheckPoints = [...checkPoints];
+                          newCheckPoints.splice(index, 1);
+                          setCheckPoints(newCheckPoints);
                         }}
                         className="bg-red-400 rounded-lg h-[35px] w-[45px] relative cursor-pointer transition-all duration-300 ease-out group hover:bg-red-300 hover:scale-125"
                       >
@@ -145,6 +159,46 @@ export default function MainWrapper() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div
+              onClick={() => {
+                if (!habbitName) {
+                  toast("Enter Habbit Name 👀");
+                  return;
+                }
+                if (startDate === null) {
+                  toast("Select Start Date 🕒");
+                  return;
+                }
+                if (endDate === null) {
+                  toast("Select End Date 🕜");
+                  return;
+                }
+                if (startDate.toDate() > endDate.toDate()) {
+                  toast("Start Date cannot be greater than End Date 👀", {
+                    className: "text-red-600 !bg-yellow-100",
+                  });
+                  return;
+                }
+                for (let i = 0; i < checkPoints.length; i++) {
+                  if (
+                    checkPoints[i].cName === "" ||
+                    checkPoints[i].cDate === null
+                  ) {
+                    toast("Enter the details of All Checkpoints 👀");
+                    return;
+                  }
+                }
+              }}
+              className="flex space-x-3 bg-purple-600 w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl mx-3 p-3 rounded-lg"
+            >
+              <div className="text-white">Submit</div>
+              <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
+                <ImgComp
+                  imgSrc="https://img.icons8.com/ios-glyphs/100/rocket.png"
+                  altText="rocket"
+                />
               </div>
             </div>
           </form>
