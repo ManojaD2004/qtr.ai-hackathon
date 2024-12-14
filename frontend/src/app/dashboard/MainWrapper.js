@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 const PAGE_NAME = "dashboard";
 const backendLink = constants.backEndLink;
 
@@ -45,36 +46,28 @@ export default function MainWrapper() {
   // }, [emailId]);
 
   const cal2024 = [
-    { monthName: "Jan", totalDays: 31, color: "#FF5733" }, // Red-Orange
-    { monthName: "Feb", totalDays: 29, color: "#33C1FF" }, // Light Blue
-    { monthName: "Mar", totalDays: 31, color: "#75FF33" }, // Green
-    { monthName: "Apr", totalDays: 30, color: "#FFC300" }, // Yellow
-    { monthName: "May", totalDays: 31, color: "#DA33FF" }, // Purple
-    { monthName: "Jun", totalDays: 30, color: "#FF338C" }, // Pink
-    { monthName: "Jul", totalDays: 31, color: "#FF5733" }, // Red-Orange
-    { monthName: "Aug", totalDays: 31, color: "#33FFBD" }, // Aqua
-    { monthName: "Sep", totalDays: 30, color: "#FF8F33" }, // Orange
-    { monthName: "Oct", totalDays: 31, color: "#C70039" }, // Dark Red
-    { monthName: "Nov", totalDays: 30, color: "#900C3F" }, // Maroon
-    { monthName: "Dec", totalDays: 31, color: "#581845" }, // Dark Purple
+    { monthName: "Jan", totalDays: 31, color: "#FF5733", skipVal: 0 }, // Red-Orange
+    { monthName: "Feb", totalDays: 29, color: "#33C1FF", skipVal: 0 }, // Light Blue
+    { monthName: "Mar", totalDays: 31, color: "#75FF33", skipVal: 0 }, // Green
+    { monthName: "Apr", totalDays: 30, color: "#FFC300", skipVal: 0 }, // Yellow
+    { monthName: "May", totalDays: 31, color: "#DA33FF", skipVal: 0 }, // Purple
+    { monthName: "Jun", totalDays: 30, color: "#FF338C", skipVal: 0 }, // Pink
+    { monthName: "Jul", totalDays: 31, color: "#FF5733", skipVal: 0 }, // Red-Orange
+    { monthName: "Aug", totalDays: 31, color: "#33FFBD", skipVal: 0 }, // Aqua
+    { monthName: "Sep", totalDays: 30, color: "#FF8F33", skipVal: 0 }, // Orange
+    { monthName: "Oct", totalDays: 31, color: "#C70039", skipVal: 0 }, // Dark Red
+    { monthName: "Nov", totalDays: 30, color: "#900C3F", skipVal: 0 }, // Maroon
+    { monthName: "Dec", totalDays: 31, color: "#581845", skipVal: 0 }, // Dark Purple
   ];
-  const calComp = cal2024.map((ele, index) => (
-    <div
-      key={index}
-      className=" bg-orange-200 h-[260px] min-w-fit flex flex-col flex-wrap gap-x-4 gap-y-4"
-    >
-      {Array.from({ length: ele.totalDays }, () => 0).map((ele1, index1) => (
-        <div
-          key={index1 + index * 100}
-          style={{
-            backgroundColor: ele.color,
-          }}
-          className="h-5 w-5 bg-red-800"
-        ></div>
-      ))}
-    </div>
-  ));
   const newCal = [];
+  const temp = new Date("2024-1-1").getDay();
+  for (let k = 0; k < temp; k++) {
+    newCal.push({
+      color: "",
+      monthName: "",
+      date: "",
+    });
+  }
   for (let i = 0; i < cal2024.length; i++) {
     const newCal1 = Array.from({ length: cal2024[i].totalDays }, () => ({
       color: cal2024[i].color,
@@ -86,7 +79,9 @@ export default function MainWrapper() {
       newCal.push(newCal1[j]);
     }
   }
-  console.log(newCal);
+
+  console.log(temp);
+  // console.log(newCal);
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
@@ -135,19 +130,51 @@ export default function MainWrapper() {
             </div>
           </div>
           <div className="w-full !my-40 min-h-[2px] bg-slate-200"></div>
-          <div className="max-w-full bg-orange-200 grid grid-flow-col grid-rows-7  gap-y-5 gap-x-3 overflow-x-auto">
-            {newCal.map((ele1, index1) => (
+          <div className="flex flex-col space-y-4 overflow-x-auto bg-orange-200">
+            <div className="flex flex-row">
+              {/* {cal2024.map((ele, index) => (
+                <div
+                  key={index}
+                  className="text-xl text-red-400 bg-red-900 rounded-lg"
+                >
+                  {ele.monthName}
+                </div>
+              ))} */}
+              <div className="text-xl w-12 text-red-400 bg-red-900 ">Jan</div>
               <div
-                key={ele1.color + index1}
                 style={{
-                  backgroundColor: ele1.color,
+                  marginLeft: 24 * 3,
                 }}
-                className="h-5 w-5 bg-red-800"
+                className="text-xl w-12 text-red-400 bg-red-900 "
               >
-
-
+                Feb
               </div>
-            ))}
+              <div
+                style={{
+                  marginLeft: 24 * 3,
+                }}
+                className="text-xl w-12 text-red-400 bg-red-900 "
+              >
+                Mar
+              </div>
+            </div>
+            <div className="w-full bg-orange-200 grid grid-flow-col grid-rows-7  gap-1">
+              {newCal.map((ele1, index1) =>
+                ele1.monthName === "" ? (
+                  <div
+                    key={index1}
+                    className="h-5 w-5 group relative bg-orange-200 rounded-lg"
+                  ></div>
+                ) : (
+                  <CalDate
+                    key={index1}
+                    color={ele1.color}
+                    tooltipData={moment(ele1.date).format("MMMM Do YYYY")}
+                  />
+                )
+              )}
+              <Tooltip id="cal-date-tooltip" />
+            </div>
           </div>
         </div>
       </div>
@@ -155,29 +182,18 @@ export default function MainWrapper() {
   );
 }
 
-function ToolTip({ data }) {
+function CalDate({ color = "red", tooltipData = "<tooltip placeholder>" }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{
-        duration: 0.6,
-        ease: "easeInOut",
-        type: "spring",
-        damping: 25,
-        stiffness: 500,
-        velocity: 2,
-      }}
-      className="w-full h-full relative"
-    >
-      <div className="bg-slate-50 absolute translate-x-1/2 -translate-y-1/2 top-1/2 left-1/4 font-semibold text-nowrap shadow-lg z-50 p-2 shadow-slate-300 h-auto">
-        {data}
-      </div>
-    </motion.div>
+    <a data-tooltip-id="cal-date-tooltip" data-tooltip-content={tooltipData}>
+      <div
+        style={{
+          backgroundColor: color,
+        }}
+        className="h-5 w-5 cursor-pointer group relative bg-red-800 rounded-lg"
+      ></div>
+    </a>
   );
 }
-
 
 function ImgComp({ imgSrc, altText = "icon placeholder", invertPer = 100 }) {
   return (
