@@ -154,6 +154,85 @@ async function main() {
       res.status(500).send({ message: "failure", error: error });
     }
   });
+  app.post("/db/v1/habits/join", async (req, res) => {
+    try {
+      await clientDb.query("BEGIN");
+      const joinDeatils = req.body;
+      console.log(chalk.red(`HIT /db/v1/habits/join`));
+      const result = await clientDb.query(
+        `INSERT INTO user_joined_habits (habit_id, user_id) 
+        VALUES ($1::integer, $2::integer) 
+        RETURNING id;`,
+        [joinDeatils.habitId, joinDeatils.userId]
+      );
+      if (result.rowCount !== 1) {
+        throw Error("Could not join");
+      }
+      const result1 = await clientDb.query(
+        `UPDATE habits_metadata SET
+        total_joined  = total_joined  + 1 
+        WHERE habit_id = $1::integer RETURNING id;`,
+        [joinDeatils.habitId]
+      );
+      if (result1.rowCount !== 1) {
+        throw Error("Could not update total_joined");
+      }
+      await clientDb.query("COMMIT");
+      res.status(200).send({
+        rowCount: result.rowCount,
+        rows: result.rows,
+        message: "success",
+        error: null,
+      });
+    } catch (error) {
+      await clientDb.query("ROLLBACK");
+      console.log(error);
+      res.status(500).send({
+        message: "failure",
+        error: error,
+      });
+    }
+  });
+  app.post("/db/v1/habits/checkpoints/create", async (req, res) => {
+    try {
+      await clientDb.query("BEGIN");
+      const joinDeatils = req.body;
+      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create`));
+      const result = await clientDb.query(
+        `INSERT INTO user_joined_habits_checkpoints 
+        (joined_habit_id, checkpoint_type, main_checkpoint_id) 
+        VALUES ($1::integer, $2::integer) 
+        RETURNING id;`,
+        [joinDeatils.habitId, joinDeatils.userId]
+      );
+      if (result.rowCount !== 1) {
+        throw Error("Could not join");
+      }
+      const result1 = await clientDb.query(
+        `UPDATE habits_metadata SET
+        total_joined  = total_joined  + 1 
+        WHERE habit_id = $1::integer RETURNING id;`,
+        [joinDeatils.habitId]
+      );
+      if (result1.rowCount !== 1) {
+        throw Error("Could not update total_joined");
+      }
+      await clientDb.query("COMMIT");
+      res.status(200).send({
+        rowCount: result.rowCount,
+        rows: result.rows,
+        message: "success",
+        error: null,
+      });
+    } catch (error) {
+      await clientDb.query("ROLLBACK");
+      console.log(error);
+      res.status(500).send({
+        message: "failure",
+        error: error,
+      });
+    }
+  });
   app.get("/db/v1/users/details/:emailId", async (req, res) => {
     try {
       const emailId = req.params.emailId;
