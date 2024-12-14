@@ -1,10 +1,13 @@
 import SidePanel from "@/components/SidePanel";
+import constants from "@/helpers/constants";
+import getUserId from "@/helpers/getUserId";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const backendLink = constants.backEndLink;
 // import Calendar from "react-calendar";
 // import "react-calendar/dist/Calendar.css";
 {
@@ -20,7 +23,7 @@ export default function MainWrapper() {
   const [startDate, setStartDate] = useState(dayjs(new Date()));
   const [endDate, setEndDate] = useState(null);
   const [checkPoints, setCheckPoints] = useState([]);
-  const [habbitName, setHabbitName] = useState("");
+  const [habitName, setHabitName] = useState("");
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
@@ -30,20 +33,20 @@ export default function MainWrapper() {
       />
       <div className="flex-1 ml-24 text-6xl flex flex-col space-y-5  py-5 px-5">
         <h1 className="text-5xl font-semibold text-slate-800">
-          Create Habbit 🤖
+          Create Habit 🤖
         </h1>
         <div className="w-full h-[2px] bg-slate-200"></div>
         <div className="bg-slate-50/75 rounded-lg shadow-lg w-full p-7">
           <form className="flex flex-col space-y-7 font-semibold">
             <div className="text-lg space-x-4">
-              <div className="inline-block w-44">Enter Habbit Name :</div>
+              <div className="inline-block w-44">Enter Habit Name :</div>
               <input
                 type="text"
                 className="border-slate-300 border-2 outline-none focus:ring-2 focus:ring-slate-300 placeholder:text-slate-400 placeholder:font-medium rounded-md pl-4 py-2"
-                value={habbitName}
-                placeholder="My New Habbit"
+                value={habitName}
+                placeholder="My New Habit"
                 onChange={(e) => {
-                  setHabbitName(e.target.value);
+                  setHabitName(e.target.value);
                 }}
               />
             </div>
@@ -163,9 +166,13 @@ export default function MainWrapper() {
               </div>
             </div>
             <div
-              onClick={() => {
-                if (!habbitName) {
-                  toast("Enter Habbit Name 👀");
+              onClick={async () => {
+                if (status !== "authenticated") {
+                  toast("Please Login 👀");
+                  return;
+                }
+                if (!habitName) {
+                  toast("Enter Habit Name 👀");
                   return;
                 }
                 if (startDate === null) {
@@ -190,6 +197,46 @@ export default function MainWrapper() {
                     toast("Enter the details of All Checkpoints 👀");
                     return;
                   }
+                  if (
+                    checkPoints[i].cDate > endDate ||
+                    checkPoints[i].cDate < startDate
+                  ) {
+                    toast(
+                      "Checkpoints Date comes between Start and End Dates 👀"
+                    );
+                    return;
+                  }
+                }
+
+                const userId = await getUserId(session);
+                const habitDeatils = {
+                  createdByUserId: userId,
+                  habitName: habitName,
+                  startDate: startDate.toISOString(),
+                  endDate: endDate.toISOString(),
+                  checkPoints: checkPoints.map((ele) => ({
+                    checkPointName: ele.cName,
+                    deadLine: ele.cDate.toISOString(),
+                  })),
+                };
+                console.log(habitDeatils);
+                const res = await fetch(`${backendLink}/db/v1/habits/create`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(habitDeatils),
+                });
+                const resJson = await res.json();
+                if (resJson.rowCount === 1) {
+                  toast(
+                    `Habit Created with a Habbit Id ${resJson.rows[0].id} 👀`
+                  );
+                }
+                else {
+                  toast(
+                    `Habit Created with a Habbit Id ${resJson.rows[0].id} 👀`
+                  );
                 }
               }}
               className="flex space-x-3 bg-purple-600 w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl mx-3 p-3 rounded-lg"

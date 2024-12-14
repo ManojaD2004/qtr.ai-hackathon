@@ -2,6 +2,7 @@ import SidePanel from "@/components/SidePanel";
 import constants from "@/helpers/constants";
 import moment from "moment";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +19,7 @@ export default function MainWrapper() {
   useEffect(() => {
     async function execThis() {
       try {
-        const res = await fetch(`${backendLink}/db/habits/all`);
+        const res = await fetch(`${backendLink}/db/v1/habits/all`);
         const resJson = await res.json();
         setHabits(resJson.rows);
         console.log(resJson);
@@ -29,6 +30,7 @@ export default function MainWrapper() {
     }
     execThis();
   }, []);
+  console.log(session);
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
@@ -95,7 +97,7 @@ export default function MainWrapper() {
                     try {
                       const habitId = ele.id;
                       const res = await fetch(
-                        `${backendLink}/db/habits/details/${habitId}`
+                        `${backendLink}/db/v1/habits/details/checkpoints/${habitId}`
                       );
                       const resJson = await res.json();
                       setSelectedHabitDetails(resJson.rows);

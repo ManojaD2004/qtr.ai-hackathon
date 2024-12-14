@@ -211,6 +211,38 @@ async function main() {
       res.status(500).send(error);
     }
   });
+  app.get("/db/v1/habits/savepoints/main/:joinedHabitId", async (req, res) => {
+    try {
+      const joinedHabitId = req.params.joinedHabitId;
+      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      const result = await clientDb.query(
+        `SELECT ms.id, ms.joined_habit_id, ms.main_checkpoint_id,
+        ms.message, ms.finished_worked_at FROM user_joined_habits_main_savepoints AS ms
+        WHERE ms.joined_habit_id = $1::integer;`,
+        [joinedHabitId]
+      );
+      res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  });
+  app.get("/db/v1/habits/savepoints/own/:joinedHabitId", async (req, res) => {
+    try {
+      const joinedHabitId = req.params.joinedHabitId;
+      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      const result = await clientDb.query(
+        `SELECT os.id, os.joined_habit_id,
+        os.message, os.finished_worked_at FROM user_joined_habits_own_savepoints AS os
+        WHERE os.joined_habit_id = $1::integer;`,
+        [joinedHabitId]
+      );
+      res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  });
   app.post("/db/v1/habits/savepoints/create/main", async (req, res) => {
     try {
       await clientDb.query("BEGIN");

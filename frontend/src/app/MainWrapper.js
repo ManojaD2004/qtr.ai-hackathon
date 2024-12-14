@@ -1,22 +1,48 @@
 import SidePanel from "@/components/SidePanel";
-import { DatePicker, TimePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
+import getUserId from "@/helpers/getUserId";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
-// import Calendar from "react-calendar";
-// import "react-calendar/dist/Calendar.css";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import { PacmanLoader } from "react-spinners";
+import ClipLoader from "react-spinners/ClipLoader";
+import { toast } from "react-toastify";
+
+const override = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+};
 
 export default function MainWrapper() {
   const { data: session, status } = useSession();
-  const [value, setValue] = useState(dayjs(new Date()));
+  const router = useRouter();
+  useEffect(() => {
+    async function execThis() {
+      if (status === "authenticated") {
+        const userId = await getUserId(session);
+        console.log(userId);
+        router.push("/dashboard");
+      } else {
+        toast("Please Log In 😊");
+      }
+    }
+    execThis();
+  }, [status]);
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
-      <div className="flex-1 text-6xl flex flex-col items-center justify-evenly">
-        <h1>This is a main Page</h1>
+      <div className="flex-1 text-6xl flex flex-col items-center justify-evenly space-y-2">
+        <div className="flex flex-col space-y-6">
+          <PacmanLoader
+            className="text-purple-400"
+            color="rgb(192, 132, 252)"
+            size={110}
+          />
+          <h2>Loading...</h2>
+        </div>
       </div>
     </div>
   );
