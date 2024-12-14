@@ -42,9 +42,9 @@ async function main() {
     }
   });
 
-  app.get("/db/habits/all", async (req, res) => {
+  app.get("/db/v1/habits/all", async (req, res) => {
     try {
-      console.log(chalk.red("HIT /db/habits/all"));
+      console.log(chalk.red("HIT /db/v1/habits/all"));
       const result = await clientDb.query(
         `SELECT h.id, h.habit_name, h.start_date, h.end_date, 
         h.created_by_user_id, h.created_at, u.email_id, hm.total_joined,
@@ -58,11 +58,11 @@ async function main() {
       res.status(500).send(error);
     }
   });
-  app.get("/db/habits/details/:habitId", async (req, res) => {
+  app.get("/db/v1/habits/details/:habitId", async (req, res) => {
     try {
       const habitId = parseInt(req.params.habitId);
       console.log(
-        chalk.red(`HIT /db/habits/details/:habitId, habitId : ${habitId}`)
+        chalk.red(`HIT /db/v1/habits/details/:habitId, habitId : ${habitId}`)
       );
       const result = await clientDb.query(
         `SELECT h.id, h.habit_name, h.start_date, h.end_date, 
@@ -78,12 +78,12 @@ async function main() {
       res.status(500).send(error);
     }
   });
-  app.get("/db/habits/details/checkpoints/:habitId", async (req, res) => {
+  app.get("/db/v1/habits/details/checkpoints/:habitId", async (req, res) => {
     try {
       const habitId = parseInt(req.params.habitId);
       console.log(
         chalk.red(
-          `HIT /db/habits/details/checkpoints/:habitId, habitId : ${habitId}`
+          `HIT /db/v1/habits/details/checkpoints/:habitId, habitId : ${habitId}`
         )
       );
       const result = await clientDb.query(
@@ -99,11 +99,11 @@ async function main() {
       res.status(500).send(error);
     }
   });
-  app.post("/db/habits/create", async (req, res) => {
+  app.post("/db/v1/habits/create", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
       const habitDetails = req.body;
-      console.log(chalk.red(`HIT /db/habits/create`));
+      console.log(chalk.red(`HIT /db/v1/habits/create`));
       const resultId = await clientDb.query(
         `INSERT INTO habits (habit_name,
       start_date, end_date, created_by_user_id) 
@@ -154,11 +154,11 @@ async function main() {
       res.status(500).send({ message: "failure", error: error });
     }
   });
-  app.get("/db/users/details/:emailId", async (req, res) => {
+  app.get("/db/v1/users/details/:emailId", async (req, res) => {
     try {
       const emailId = req.params.emailId;
       console.log(
-        chalk.red(`HIT /db/users/details/:emailId, emailId : ${emailId}`)
+        chalk.red(`HIT /db/v1/users/details/:emailId, emailId : ${emailId}`)
       );
       const result = await clientDb.query(
         `SELECT u.id, u.email_id, u.user_name, 
@@ -170,6 +170,36 @@ async function main() {
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
+    }
+  });
+  app.post("/db/v1/users/create", async (req, res) => {
+    try {
+      await clientDb.query("BEGIN");
+      const userDeatils = req.body;
+      console.log(chalk.red(`HIT /db/v1/users/create`));
+      const result = await clientDb.query(
+        `INSERT INTO users (email_id, user_name, 
+        user_img) VALUES ($1::varchar, $2::varchar, $3::varchar) 
+        RETURNING id;`,
+        [userDeatils.emailId, userDeatils.userName, userDeatils.userImg]
+      );
+      if (result.rowCount !== 1) {
+        throw Error("user already exist");
+      }
+      await clientDb.query("COMMIT");
+      res.status(200).send({
+        rowCount: result.rowCount,
+        rows: result.rows,
+        message: "success",
+        error: null,
+      });
+    } catch (error) {
+      await clientDb.query("ROLLBACK");
+      console.log(error);
+      res.status(500).send({
+        message: "failure",
+        error: error,
+      });
     }
   });
 
