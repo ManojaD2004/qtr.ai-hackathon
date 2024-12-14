@@ -175,7 +175,7 @@ export default function MainWrapper() {
                 <div className="flex p-2 flex-row bg-purple-100 shadow-lg justify-between rounded-lg w-full">
                   <div className="text-purple-700">Checkpoints 👇</div>
                 </div>
-                <div className="flex flex-col rounded-lg shadow-xl bg-purple-100 space-y-4 w-full h-72 scrollbar scrollbar-thumb-sky-700 scrollbar-track-sky-300  overflow-y-auto">
+                <div className="flex flex-col rounded-lg shadow-xl bg-purple-100 space-y-4 w-full h-72 scrollbar-thin scrollbar-thumb-purple-800/50 scrollbar-track-purple-100  overflow-y-auto">
                   {/*  {
             "id": 1,
             "habit_name": "Weight Loss",
@@ -189,10 +189,10 @@ export default function MainWrapper() {
                     .map((ele, index) => (
                       <div
                         key={index}
-                        className="text-red-800 bg-purple-50 shadow-lg rounded-lg p-2"
+                        className="text-purple-900 bg-purple-50 shadow-lg rounded-lg p-2"
                       >
                         {index + 1}. {ele.checkpoint_name}, Deadline :{" "}
-                        <i className="text-red-700">
+                        <i className="text-purple-700">
                           {`${moment(ele.deadline).format("MMMM Do YYYY")}`}
                         </i>
                       </div>
@@ -201,7 +201,7 @@ export default function MainWrapper() {
                 <div className="flex justify-between items-center">
                   <div
                     onClick={() => {}}
-                    className="flex space-x-3 bg-purple-600 w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
+                    className="flex space-x-3 bg-purple-600 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
                   >
                     <div className="text-white">Join Now</div>
                     <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
@@ -211,7 +211,7 @@ export default function MainWrapper() {
                       />
                     </div>
                   </div>
-                  <div className="text-red-500 bg-yellow-100 rounded-lg p-2">
+                  <div className="text-red-900 bg-purple-100 shadow-xl rounded-lg p-2">
                     Total People Joined:{" "}
                     {habits[selectedHabitIndex].total_joined}
                   </div>
