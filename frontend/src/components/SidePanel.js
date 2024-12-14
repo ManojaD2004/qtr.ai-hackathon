@@ -35,6 +35,7 @@ function SidePanel({
           isSelected={routePage === "tasks"}
           route="/tasks"
           tooltipData="tasks"
+          hide={true}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/material-rounded/100/calendar--v1.png"
@@ -42,6 +43,7 @@ function SidePanel({
           isSelected={routePage === "planner"}
           route="/planner"
           tooltipData="planner"
+          hide={true}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-filled/100/book.png"
@@ -49,6 +51,7 @@ function SidePanel({
           isSelected={routePage === "journal"}
           route="/journal"
           tooltipData="journal"
+          hide={true}
         />
         <SpImgComp
           imgSrc="https://img.icons8.com/ios-filled/100/apple-notes.png"
@@ -156,10 +159,15 @@ function SpImgComp({
   altText = "icon placeholder",
   isSelected = false,
   tooltipData = "tooltip placeholder",
+  hide = false,
 }) {
   const [tooltip, setToolTip] = useState(false);
   return (
-    <a href={route} target="_self">
+    <a
+      href={route}
+      target="_self"
+      className={hide ? "hidden xl:inline" : ""}
+    >
       <div
         className="cursor-pointer group relative w-[30px] h-[30px]"
         onMouseEnter={() => {

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
+const format = require("pg-format");
 const chalk = require("chalk");
 const { waitFor } = require("./helpers/wait");
 
@@ -61,11 +62,35 @@ async function main() {
     try {
       const habitId = parseInt(req.params.habitId);
       console.log(
-        chalk.red(`HIT /db/habits/details/:habitId, habitId : ${habitId}`)
+        chalk.red(
+          `HIT /db/habits/details/:habitId, habitId : ${habitId}`
+        )
       );
       const result = await clientDb.query(
-        `SELECT h.id, h.habit_name, h.created_by_user_id, 
-        h.created_at,  hc.checkpoint_name, hc.deadline FROM habits as h  
+        `SELECT h.id, h.habit_name, h.start_date, h.end_date, 
+        h.created_by_user_id, h.created_at, u.email_id, hm.total_joined,
+        u.user_name, u.user_img  FROM habits as h LEFT JOIN habits_metadata 
+        as hm ON hm.habit_id =  h.id LEFT JOIN users as u ON u.id 
+        = h.created_by_user_id WHERE h.id = $1::integer`,
+        [habitId]
+      );
+      res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  });
+  app.get("/db/habits/details/checkpoints/:habitId", async (req, res) => {
+    try {
+      const habitId = parseInt(req.params.habitId);
+      console.log(
+        chalk.red(
+          `HIT /db/habits/details/checkpoints/:habitId, habitId : ${habitId}`
+        )
+      );
+      const result = await clientDb.query(
+        `SELECT hc.id,  hc.checkpoint_name, 
+        hc.deadline FROM habits as h  
         LEFT JOIN habits_checkpoints as hc 
         ON hc.habit_id = h.id WHERE h.id = $1::integer`,
         [habitId]
@@ -92,6 +117,61 @@ async function main() {
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
+    }
+  });
+  app.post("/db/habits/create", async (req, res) => {
+    try {
+      await clientDb.query("BEGIN");
+      const habitDetails = req.body;
+      console.log(chalk.red(`HIT /db/habits/create`));
+      const resultId = await clientDb.query(
+        `INSERT INTO habits (habit_name,
+      start_date, end_date, created_by_user_id) 
+      VALUES ($1::varchar, $2::timestamp, $3::timestamp, 
+       $4::integer) RETURNING id;`,
+        [
+          habitDetails.habitName,
+          habitDetails.startDate,
+          habitDetails.endDate,
+          habitDetails.createdByUserId,
+        ]
+      );
+      if (resultId.rowCount === 1) {
+        const habitId = parseInt(resultId.rows[0].id);
+        await clientDb.query(
+          `INSERT INTO habits_metadata (habit_id,
+              total_joined) VALUES ($1::integer, $2::integer);`,
+          [habitId, 0]
+        );
+        if (habitDetails.checkPoints.length > 0) {
+          const insertList = [];
+          for (let j = 0; j < habitDetails.checkPoints.length; j++) {
+            insertList.push([
+              habitId,
+              habitDetails.checkPoints[j].checkPointName,
+              habitDetails.checkPoints[j].deadLine,
+            ]);
+          }
+          const result1 = await clientDb.query(
+            format(
+              `INSERT INTO habits_checkpoints (habit_id,
+              checkpoint_name, deadline) VALUES %L RETURNING id;`,
+              insertList
+            )
+          );
+          if (result1.rowCount !== habitDetails.checkPoints.length) {
+            throw Error("Error inserting records");
+          }
+        }
+      } else {
+        throw Error("Error inserting records");
+      }
+      await clientDb.query("COMMIT");
+      res.status(200).send({ message: "success", error: null });
+    } catch (error) {
+      await clientDb.query("ROLLBACK");
+      console.log(error);
+      res.status(500).send({ message: "failure", error: error });
     }
   });
 

@@ -10,6 +10,15 @@ import "react-tooltip/dist/react-tooltip.css";
 const PAGE_NAME = "dashboard";
 const backendLink = constants.backEndLink;
 
+{
+  /* user_data {
+            "id": 1,
+            "email_id": "manojad2004@gmail.com",
+            "user_name": "Manoja D",
+            "user_img": "https://lh3.googleusercontent.com/a/ACg8ocJurKMGO0gumdosWhn9Ld74ub6Sy29KYceU0GBXN2caJXsrC64=s317-c-no",
+            "created_at": "2024-12-13T13:30:34.954Z"
+        } */
+}
 export default function MainWrapper() {
   const { data: session, status } = useSession();
   const [userDeatils, setUserDetails] = useState({
@@ -60,28 +69,54 @@ export default function MainWrapper() {
     { monthName: "Dec", totalDays: 31, color: "#581845", skipVal: 0 }, // Dark Purple
   ];
   const newCal = [];
-  const temp = new Date("2024-1-1").getDay();
-  for (let k = 0; k < temp; k++) {
+  const skipDays = new Date("2024-1-1").getDay();
+  for (let k = 0; k < skipDays; k++) {
     newCal.push({
       color: "",
       monthName: "",
       date: "",
+      toolTilDate: "",
     });
   }
+  const listOfGoodDate = [];
+  listOfGoodDate.push(moment(userDeatils.created_at).format("YYYY-MM-DD"));
+  console.log(listOfGoodDate);
   for (let i = 0; i < cal2024.length; i++) {
     const newCal1 = Array.from({ length: cal2024[i].totalDays }, () => ({
       color: cal2024[i].color,
       monthName: cal2024[i].monthName,
       date: `2024-${i + 1}-${-1}`,
+      toolTilDate: "",
     }));
     for (let j = 0; j < cal2024[i].totalDays; j++) {
       newCal1[j].date = `2024-${i + 1}-${j + 1}`;
+      if (listOfGoodDate.includes(newCal1[j].date)) {
+        newCal1[j].toolTilDate = `You account created on ${moment(
+          `2024-${i + 1}-${j + 1}`
+        ).format("MMMM Do YYYY")} 🥰`;
+        newCal1[j].color = "rgb(152, 85, 222)";
+      } else {
+        newCal1[j].toolTilDate = `No Actions on ${moment(
+          `2024-${i + 1}-${j + 1}`
+        ).format("MMMM Do YYYY")} 🙄`;
+        newCal1[j].color = "rgb(203, 213, 225)";
+      }
       newCal.push(newCal1[j]);
     }
   }
-
-  console.log(temp);
-  // console.log(newCal);
+  cal2024[0].totalDays += skipDays;
+  let remainDays = 0;
+  for (let i = 0; i < cal2024.length - 1; i++) {
+    let days = cal2024[i].totalDays;
+    days = days - 14;
+    if (remainDays !== 0) {
+      days = days - (7 - remainDays);
+    }
+    let skipDay = Math.ceil(days / 7);
+    cal2024[i + 1].skipVal = skipDay;
+    remainDays = days % 7;
+  }
+  cal2024[0].totalDays -= skipDays;
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
@@ -89,24 +124,14 @@ export default function MainWrapper() {
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
-      <ToastContainer
-        bodyClassName="font-semibold text-red-700"
-        position="top-right"
-      />
+
       <div className="w-full h-full pl-24">
         <div className="w-full h-full p-6 space-y-6">
           <div className="flex fex-row items-center space-x-16">
             <div
               onClick={() => toast("User not found, please login in 🥲")}
-              className="w-20 h-20 relative rounded-full overflow-hidden shadow-xl shadow-slate-300"
+              className="w-20 h-20 relative rounded-full overflow-hidden shadow-xl ring-purple-400/50 ring-4 shadow-purple-300"
             >
-              {/*  {
-            "id": 1,
-            "email_id": "manojad2004@gmail.com",
-            "user_name": "Manoja D",
-            "user_img": "https://lh3.googleusercontent.com/a/ACg8ocJurKMGO0gumdosWhn9Ld74ub6Sy29KYceU0GBXN2caJXsrC64=s317-c-no",
-            "created_at": "2024-12-13T13:30:34.954Z"
-        } */}
               <ImgComp
                 invertPer={0}
                 imgSrc={
@@ -122,58 +147,72 @@ export default function MainWrapper() {
             <h2 className="text-7xl text-purple-800">
               {userDeatils !== null ? userDeatils.user_name : "<user-name>"}
             </h2>
-            <div className="text-3xl text-purple-800 bg-purple-50 p-3 rounded-lg shadow-xl">
-              Joined :{" "}
-              {userDeatils !== null
-                ? moment(userDeatils.created_at, "YYYYMMDD").fromNow()
-                : "<date>"}
+            <div className="text-xl h-full flex flex-col text-purple-800 bg-purple-100 p-3 rounded-xl shadow-purple-300/60 shadow-xl">
+              <div>
+                Joined :{" "}
+                <b>
+                  {userDeatils !== null
+                    ? moment(userDeatils.created_at, "YYYYMMDD").fromNow()
+                    : "<date>"}
+                </b>
+              </div>
+              <div>
+                UserId :{" "}
+                <b>
+                  {userDeatils !== null ? userDeatils.email_id : "<user-id>"}
+                </b>
+              </div>
             </div>
           </div>
-          <div className="w-full !my-40 min-h-[2px] bg-slate-200"></div>
-          <div className="flex flex-col space-y-4 overflow-x-auto bg-orange-200">
-            <div className="flex flex-row">
-              {/* {cal2024.map((ele, index) => (
-                <div
-                  key={index}
-                  className="text-xl text-red-400 bg-red-900 rounded-lg"
-                >
-                  {ele.monthName}
+          <div className="w-full min-h-[2px]  bg-slate-200"></div>
+          <div className="flex flex-row bg-slate-100 shadow-md p-2 rounded-xl justify-center">
+            <div className="flex flex-row max-w-fit overflow-x-auto scrollbar-thin scrollbar-track-purple-200 scrollbar-thumb-purple-600">
+              <div className="pt-7 box-border">
+                <div className="pr-2 h-[142px] flex flex-col  justify-evenly text-sm font-semibold ">
+                  <div className="text-slate-800">Mon</div>
+                  <div className="text-slate-800">Wed</div>
+                  <div className="text-slate-800">Fri</div>
                 </div>
-              ))} */}
-              <div className="text-xl w-12 text-red-400 bg-red-900 ">Jan</div>
-              <div
-                style={{
-                  marginLeft: 24 * 3,
-                }}
-                className="text-xl w-12 text-red-400 bg-red-900 "
-              >
-                Feb
               </div>
-              <div
-                style={{
-                  marginLeft: 24 * 3,
-                }}
-                className="text-xl w-12 text-red-400 bg-red-900 "
-              >
-                Mar
+              <div className="flex w-full flex-col space-y-1">
+                <div className="flex flex-nowrap">
+                  {cal2024.map((ele, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        marginLeft: 20 * ele.skipVal,
+                      }}
+                      className="text-xl flex-shrink-0 w-10 text-slate-900 font-semibold float-left"
+                    >
+                      {ele.monthName}
+                    </div>
+                  ))}
+                </div>
+                <div className="max-w-fit grid grid-flow-col grid-rows-7 gap-[4px]">
+                  {newCal.map((ele1, index1) =>
+                    ele1.monthName === "" ? (
+                      <div
+                        key={index1}
+                        className="h-4 w-4 group relative pointer-events-none rounded-md"
+                      ></div>
+                    ) : (
+                      <CalDate
+                        key={index1}
+                        color={ele1.color}
+                        tooltipData={ele1.toolTilDate}
+                      />
+                    )
+                  )}
+                </div>
               </div>
             </div>
-            <div className="w-full bg-orange-200 grid grid-flow-col grid-rows-7  gap-1">
-              {newCal.map((ele1, index1) =>
-                ele1.monthName === "" ? (
-                  <div
-                    key={index1}
-                    className="h-5 w-5 group relative bg-orange-200 rounded-lg"
-                  ></div>
-                ) : (
-                  <CalDate
-                    key={index1}
-                    color={ele1.color}
-                    tooltipData={moment(ele1.date).format("MMMM Do YYYY")}
-                  />
-                )
-              )}
-              <Tooltip id="cal-date-tooltip" />
+
+            <div className="w-auto px-6  flex flex-col items-center space-y-4 text-sm font-semibold ">
+              <YearButton yearName="2027" />
+              <YearButton yearName="2026" />
+              <YearButton yearName="2025" />
+              <YearButton yearName="2024" isSelected={true} />
+              <YearButton yearName="2023" />
             </div>
           </div>
         </div>
@@ -189,9 +228,25 @@ function CalDate({ color = "red", tooltipData = "<tooltip placeholder>" }) {
         style={{
           backgroundColor: color,
         }}
-        className="h-5 w-5 cursor-pointer group relative bg-red-800 rounded-lg"
+        className="h-4 w-4 cursor-pointer group relative rounded-md"
       ></div>
     </a>
+  );
+}
+
+function YearButton({ yearName, handleClick = null, isSelected = false }) {
+  return (
+    <div
+      onClick={handleClick}
+      className={`${
+        isSelected
+          ? "text-purple-200 bg-purple-600"
+          : "text-purple-700 bg-purple-200 hover:bg-purple-500 hover:text-purple-100 "
+      } 
+       p-1 pr-6 rounded-lg flex-shrink-0 cursor-pointer`}
+    >
+      {yearName}
+    </div>
   );
 }
 

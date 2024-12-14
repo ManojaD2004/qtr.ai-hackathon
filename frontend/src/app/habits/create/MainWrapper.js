@@ -28,10 +28,6 @@ export default function MainWrapper() {
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
-      <ToastContainer
-        bodyClassName="font-semibold text-red-700"
-        position="top-right"
-      />
       <div className="flex-1 ml-24 text-6xl flex flex-col space-y-5  py-5 px-5">
         <h1 className="text-5xl font-semibold text-slate-800">
           Create Habbit 🤖
