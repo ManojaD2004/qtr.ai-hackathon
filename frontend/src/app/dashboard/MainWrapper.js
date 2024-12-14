@@ -1,122 +1,113 @@
 import SidePanel from "@/components/SidePanel";
 import constants from "@/helpers/constants";
+import getUserId from "@/helpers/getUserId";
 import moment from "moment";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 const PAGE_NAME = "dashboard";
 const backendLink = constants.backEndLink;
 
-{
-  /* user_data {
-            "id": 1,
-            "email_id": "manojad2004@gmail.com",
-            "user_name": "Manoja D",
-            "user_img": "https://lh3.googleusercontent.com/a/ACg8ocJurKMGO0gumdosWhn9Ld74ub6Sy29KYceU0GBXN2caJXsrC64=s317-c-no",
-            "created_at": "2024-12-13T13:30:34.954Z"
-        } */
-}
+const cal2024 = [
+  { monthName: "Jan", totalDays: 31, skipVal: 0 },
+  { monthName: "Feb", totalDays: 29, skipVal: 0 },
+  { monthName: "Mar", totalDays: 31, skipVal: 0 },
+  { monthName: "Apr", totalDays: 30, skipVal: 0 },
+  { monthName: "May", totalDays: 31, skipVal: 0 },
+  { monthName: "Jun", totalDays: 30, skipVal: 0 },
+  { monthName: "Jul", totalDays: 31, skipVal: 0 },
+  { monthName: "Aug", totalDays: 31, skipVal: 0 },
+  { monthName: "Sep", totalDays: 30, skipVal: 0 },
+  { monthName: "Oct", totalDays: 31, skipVal: 0 },
+  { monthName: "Nov", totalDays: 30, skipVal: 0 },
+  { monthName: "Dec", totalDays: 31, skipVal: 0 },
+];
 export default function MainWrapper() {
   const { data: session, status } = useSession();
-  const [userDeatils, setUserDetails] = useState({
-    id: 1,
-    email_id: "manojad2004@gmail.com",
-    user_name: "Manoja D",
-    user_img:
-      "https://lh3.googleusercontent.com/a/ACg8ocJurKMGO0gumdosWhn9Ld74ub6Sy29KYceU0GBXN2caJXsrC64=s317-c-no",
-    created_at: "2024-12-13T13:30:34.954Z",
-  });
-  const emailId = session?.user?.email;
+  const [userDeatils, setUserDetails] = useState(null);
 
-  // useEffect(() => {
-  //   async function execThis(emailId) {
-  //     try {
-  //       const res = await fetch(`${backendLink}/db/users/details/${emailId}`);
-  //       const resJson = await res.json();
-  //       if (resJson.rowCount === 1) {
-  //         setUserDetails(resJson.rows[0]);
-  //         console.log(resJson);
-  //       } else if (resJson.rowCount === 0) {
-  //         toast("User not found, please login in 🥲");
-  //       } else if (resJson.rowCount > 1) {
-  //         toast("Server Error, many users founded 🥲");
-  //       }
-  //     } catch (error) {
-  //       toast("Server Error 🥲");
-  //       console.log("Error: ", error);
-  //     }
-  //   }
-  //   if (emailId) {
-  //     execThis(emailId);
-  //   }
-  // }, [emailId]);
-
-  const cal2024 = [
-    { monthName: "Jan", totalDays: 31, color: "#FF5733", skipVal: 0 }, // Red-Orange
-    { monthName: "Feb", totalDays: 29, color: "#33C1FF", skipVal: 0 }, // Light Blue
-    { monthName: "Mar", totalDays: 31, color: "#75FF33", skipVal: 0 }, // Green
-    { monthName: "Apr", totalDays: 30, color: "#FFC300", skipVal: 0 }, // Yellow
-    { monthName: "May", totalDays: 31, color: "#DA33FF", skipVal: 0 }, // Purple
-    { monthName: "Jun", totalDays: 30, color: "#FF338C", skipVal: 0 }, // Pink
-    { monthName: "Jul", totalDays: 31, color: "#FF5733", skipVal: 0 }, // Red-Orange
-    { monthName: "Aug", totalDays: 31, color: "#33FFBD", skipVal: 0 }, // Aqua
-    { monthName: "Sep", totalDays: 30, color: "#FF8F33", skipVal: 0 }, // Orange
-    { monthName: "Oct", totalDays: 31, color: "#C70039", skipVal: 0 }, // Dark Red
-    { monthName: "Nov", totalDays: 30, color: "#900C3F", skipVal: 0 }, // Maroon
-    { monthName: "Dec", totalDays: 31, color: "#581845", skipVal: 0 }, // Dark Purple
-  ];
-  const newCal = [];
-  const skipDays = new Date("2024-1-1").getDay();
-  for (let k = 0; k < skipDays; k++) {
-    newCal.push({
-      color: "",
-      monthName: "",
-      date: "",
-      toolTilDate: "",
-    });
-  }
-  const listOfGoodDate = [];
-  listOfGoodDate.push(moment(userDeatils.created_at).format("YYYY-MM-DD"));
-  console.log(listOfGoodDate);
-  for (let i = 0; i < cal2024.length; i++) {
-    const newCal1 = Array.from({ length: cal2024[i].totalDays }, () => ({
-      color: cal2024[i].color,
-      monthName: cal2024[i].monthName,
-      date: `2024-${i + 1}-${-1}`,
-      toolTilDate: "",
-    }));
-    for (let j = 0; j < cal2024[i].totalDays; j++) {
-      newCal1[j].date = `2024-${i + 1}-${j + 1}`;
-      if (listOfGoodDate.includes(newCal1[j].date)) {
-        newCal1[j].toolTilDate = `You account created on ${moment(
-          `2024-${i + 1}-${j + 1}`
-        ).format("MMMM Do YYYY")} 🥰`;
-        newCal1[j].color = "rgb(152, 85, 222)";
-      } else {
-        newCal1[j].toolTilDate = `No Actions on ${moment(
-          `2024-${i + 1}-${j + 1}`
-        ).format("MMMM Do YYYY")} 🙄`;
-        newCal1[j].color = "rgb(203, 213, 225)";
+  useEffect(() => {
+    async function execThis() {
+      try {
+        if (status !== "authenticated") {
+          return;
+        }
+        const res = await fetch(
+          `${backendLink}/db/v1/users/details/${session.user.email}`
+        );
+        const resJson = await res.json();
+        if (resJson.rowCount !== 1) {
+          toast("User not Found 🥲");
+        }
+        setUserDetails(resJson.rows[0]);
+        const userId = await getUserId(session);
+      } catch (error) {
+        toast("Server Error 🥲");
+        console.log("Error: ", error);
       }
-      newCal.push(newCal1[j]);
     }
-  }
-  cal2024[0].totalDays += skipDays;
-  let remainDays = 0;
-  for (let i = 0; i < cal2024.length - 1; i++) {
-    let days = cal2024[i].totalDays;
-    days = days - 14;
-    if (remainDays !== 0) {
-      days = days - (7 - remainDays);
+    execThis();
+  }, [status]);
+  const listOfGoodDate = useMemo(() => {
+    const listOfGoodDate = [];
+    if (userDeatils) {
+      listOfGoodDate.push(moment(userDeatils.created_at).format("YYYY-MM-DD"));
     }
-    let skipDay = Math.ceil(days / 7);
-    cal2024[i + 1].skipVal = skipDay;
-    remainDays = days % 7;
-  }
-  cal2024[0].totalDays -= skipDays;
+    console.log(listOfGoodDate);
+    return listOfGoodDate;
+  }, [userDeatils]);
+  const newCal = useMemo(() => {
+    const newCal = [];
+    const skipDays = new Date("2024-1-1").getDay();
+    for (let k = 0; k < skipDays; k++) {
+      newCal.push({
+        color: "",
+        monthName: "",
+        date: "",
+        toolTilDate: "",
+      });
+    }
+
+    for (let i = 0; i < cal2024.length; i++) {
+      const newCal1 = Array.from({ length: cal2024[i].totalDays }, () => ({
+        color: cal2024[i].color,
+        monthName: cal2024[i].monthName,
+        date: `2024-${i + 1}-${-1}`,
+        toolTilDate: "",
+      }));
+      for (let j = 0; j < cal2024[i].totalDays; j++) {
+        newCal1[j].date = `2024-${i + 1}-${j + 1}`;
+        if (listOfGoodDate.includes(newCal1[j].date)) {
+          newCal1[j].toolTilDate = `You account created on ${moment(
+            `2024-${i + 1}-${j + 1}`
+          ).format("MMMM Do YYYY")} 🥰`;
+          newCal1[j].color = "rgb(152, 85, 222)";
+        } else {
+          newCal1[j].toolTilDate = `No Actions on ${moment(
+            `2024-${i + 1}-${j + 1}`
+          ).format("MMMM Do YYYY")} 🙄`;
+          newCal1[j].color = "rgb(203, 213, 225)";
+        }
+        newCal.push(newCal1[j]);
+      }
+    }
+    cal2024[0].totalDays += skipDays;
+    let remainDays = 0;
+    for (let i = 0; i < cal2024.length - 1; i++) {
+      let days = cal2024[i].totalDays;
+      days = days - 14;
+      if (remainDays !== 0) {
+        days = days - (7 - remainDays);
+      }
+      let skipDay = Math.ceil(days / 7);
+      cal2024[i + 1].skipVal = skipDay;
+      remainDays = days % 7;
+    }
+    cal2024[0].totalDays -= skipDays;
+    return newCal;
+  }, [listOfGoodDate]);
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
