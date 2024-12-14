@@ -102,6 +102,7 @@ async function main() {
   app.post("/db/v1/habits/create", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
+      await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
       const habitDetails = req.body;
       console.log(chalk.red(`HIT /db/v1/habits/create`));
       const resultId = await clientDb.query(
@@ -157,6 +158,7 @@ async function main() {
   app.post("/db/v1/habits/join", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
+      await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
       const joinDeatils = req.body;
       console.log(chalk.red(`HIT /db/v1/habits/join`));
       const result = await clientDb.query(
@@ -193,18 +195,56 @@ async function main() {
       });
     }
   });
-  app.post("/db/v1/habits/checkpoints/create/main", async (req, res) => {
+  app.get("/db/v1/habits/join/:userId", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      const result = await clientDb.query(
+        `SELECT uj.id, uj.habit_id, uj.user_id, uj.join_at, 
+        h.habit_name, h.created_at FROM user_joined_habits AS uj LEFT 
+        JOIN habits AS h ON uj.habit_id = h.id WHERE uj.user_id = $1::integer;`,
+        [userId]
+      );
+      res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  });
+  app.post("/db/v1/habits/savepoints/create/main", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
+      await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
+      console.log(chalk.red(`HIT /db/v1/habits/savepoints/create/all`));
       const joinDeatils = req.body;
-      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create/all`));
-      const result = await clientDb.query(
-        `INSERT INTO user_joined_habits_main_checkpoints
-        (joined_habit_id, main_checkpoint_id, message) 
-        VALUES ($1::integer, $2::integer, $3::text) 
-        RETURNING id;`,
-        [joinDeatils.habitId, joinDeatils.mainCheckpointId, joinDeatils.message]
-      );
+      const testing = Boolean(req.query.testing);
+      let result;
+      if (testing) {
+        result = await clientDb.query(
+          `INSERT INTO user_joined_habits_main_savepoints
+          (joined_habit_id, main_checkpoint_id, message, finished_worked_at) 
+          VALUES ($1::integer, $2::integer, $3::text, $4::timestamp) 
+          RETURNING id;`,
+          [
+            joinDeatils.joinHabitId,
+            joinDeatils.mainCheckpointId,
+            joinDeatils.message,
+            joinDeatils.finishedWorkedAt,
+          ]
+        );
+      } else {
+        result = await clientDb.query(
+          `INSERT INTO user_joined_habits_main_savepoints
+          (joined_habit_id, main_checkpoint_id, message) 
+          VALUES ($1::integer, $2::integer, $3::text) 
+          RETURNING id;`,
+          [
+            joinDeatils.joinHabitId,
+            joinDeatils.mainCheckpointId,
+            joinDeatils.message,
+          ]
+        );
+      }
       if (result.rowCount !== 1) {
         throw Error("Could not create main checkpoint");
       }
@@ -224,18 +264,36 @@ async function main() {
       });
     }
   });
-  app.post("/db/v1/habits/checkpoints/create/own", async (req, res) => {
+  app.post("/db/v1/habits/savepoints/create/own", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
+      await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
+      console.log(chalk.red(`HIT /db/v1/habits/savepoints/create/own`));
       const joinDeatils = req.body;
-      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create/own`));
-      const result = await clientDb.query(
-        `INSERT INTO user_joined_habits_own_checkpoints
-        (joined_habit_id, message) 
-        VALUES ($1::integer, $2::text) 
-        RETURNING id;`,
-        [joinDeatils.habitId, joinDeatils.message]
-      );
+      const testing = Boolean(req.query.testing);
+      console.log(testing);
+      let result;
+      if (testing) {
+        result = await clientDb.query(
+          `INSERT INTO user_joined_habits_own_savepoints
+          (joined_habit_id, message, finished_worked_at) 
+          VALUES ($1::integer, $2::text, $3::timestamp) 
+          RETURNING id;`,
+          [
+            joinDeatils.joinHabitId,
+            joinDeatils.message,
+            joinDeatils.finishedWorkedAt,
+          ]
+        );
+      } else {
+        result = await clientDb.query(
+          `INSERT INTO user_joined_habits_own_savepoints
+          (joined_habit_id, message) 
+          VALUES ($1::integer, $2::text) 
+          RETURNING id;`,
+          [joinDeatils.joinHabitId, joinDeatils.message]
+        );
+      }
       if (result.rowCount !== 1) {
         throw Error("Could not create own checkpoint");
       }
@@ -276,6 +334,7 @@ async function main() {
   app.post("/db/v1/users/create", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
+      await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
       const userDeatils = req.body;
       console.log(chalk.red(`HIT /db/v1/users/create`));
       const result = await clientDb.query(

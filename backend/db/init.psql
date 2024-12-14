@@ -50,11 +50,11 @@ create table if not exists
       id serial primary key,
       habit_id integer not null,
       user_id integer not null,
-      unique (habit_id, user_id)
+      join_at timestamp default now() unique (habit_id, user_id)
    );
 
 create table if not exists
-   user_joined_habits_own_checkpoints (
+   user_joined_habits_own_savepoints (
       id serial primary key,
       joined_habit_id integer not null,
       message text not null,
@@ -62,13 +62,12 @@ create table if not exists
    );
 
 create table if not exists
-   user_joined_habits_main_checkpoints (
+   user_joined_habits_main_savepoints (
       id serial primary key,
       joined_habit_id integer not null,
       main_checkpoint_id integer not null,
       message text not null,
-      finished_worked_at timestamp default now()
-      unique (joined_habit_id, main_checkpoint_id)
+      finished_worked_at timestamp default now() unique (joined_habit_id, main_checkpoint_id)
    );
 
 alter table habits_checkpoints
@@ -86,12 +85,11 @@ add foreign key (user_id) references users (id);
 alter table user_joined_habits
 add foreign key (habit_id) references habits (id);
 
-alter table user_joined_habits_own_checkpoints
+alter table user_joined_habits_own_savepoints
 add foreign key (joined_habit_id) references user_joined_habits (id);
 
-alter table user_joined_habits_main_checkpoints
+alter table user_joined_habits_main_savepoints
 add foreign key (joined_habit_id) references user_joined_habits (id);
 
-alter table user_joined_habits_main_checkpoints
+alter table user_joined_habits_main_savepoints
 add foreign key (main_checkpoint_id) references habits_checkpoints (id);
-

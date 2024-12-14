@@ -1,7 +1,12 @@
 FROM postgres
 
+WORKDIR /db
+COPY ./db/postgresql.conf /db/postgresql.conf
+
 COPY ./db/migrations.psql /docker-entrypoint-initdb.d/migrations.sql
+
 
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=qtr
 ENV POSTGRES_DB=qtr
+ENV TZ=Asia/Kolkata
