@@ -41,9 +41,9 @@ async function main() {
     }
   });
 
-  app.get("/db/habits-all", async (req, res) => {
+  app.get("/db/habits/all", async (req, res) => {
     try {
-      console.log(chalk.red("HIT /db/habits-all"));
+      console.log(chalk.red("HIT /db/habits/all"));
       const result = await clientDb.query(
         `SELECT h.id, h.habit_name, h.start_date, h.end_date, 
         h.created_by_user_id, h.created_at, u.email_id, hm.total_joined,
@@ -57,11 +57,11 @@ async function main() {
       res.status(500).send(error);
     }
   });
-  app.get("/db/habits-details/:habitId", async (req, res) => {
+  app.get("/db/habits/details/:habitId", async (req, res) => {
     try {
       const habitId = parseInt(req.params.habitId);
       console.log(
-        chalk.red(`HIT /db/habits-details/:habitId, habitId : ${habitId}`)
+        chalk.red(`HIT /db/habits/details/:habitId, habitId : ${habitId}`)
       );
       const result = await clientDb.query(
         `SELECT h.id, h.habit_name, h.created_by_user_id, 
@@ -69,6 +69,24 @@ async function main() {
         LEFT JOIN habits_checkpoints as hc 
         ON hc.habit_id = h.id WHERE h.id = $1::integer`,
         [habitId]
+      );
+      res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  });
+  app.get("/db/users/details/:emailId", async (req, res) => {
+    try {
+      const emailId = req.params.emailId;
+      console.log(
+        chalk.red(`HIT /db/users/details/:emailId, emailId : ${emailId}`)
+      );
+      const result = await clientDb.query(
+        `SELECT u.id, u.email_id, u.user_name, 
+        u.user_img,  u.created_at FROM users as u  
+        WHERE u.email_id = $1::varchar`,
+        [emailId]
       );
       res.status(200).send({ rowCount: result.rowCount, rows: result.rows });
     } catch (error) {

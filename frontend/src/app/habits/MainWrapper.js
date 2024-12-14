@@ -4,6 +4,7 @@ import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PAGE_NAME = "habits";
 const backendLink = constants.backEndLink;
@@ -17,7 +18,7 @@ export default function MainWrapper() {
   useEffect(() => {
     async function execThis() {
       try {
-        const res = await fetch(`${backendLink}/db/habits-all`);
+        const res = await fetch(`${backendLink}/db/habits/all`);
         const resJson = await res.json();
         setHabits(resJson.rows);
         console.log(resJson);
@@ -42,7 +43,7 @@ export default function MainWrapper() {
       />
       <div className="flex-1 ml-24 text-6xl flex flex-col space-y-5  py-5 px-5">
         <h1>Habits 😺</h1>
-        <div className="w-full h-[2px] bg-slate-200"></div>
+        <div className="w-full min-h-[2px] bg-slate-200"></div>
         <div className="bg-slate-50 text-xl font-semibold flex flex-row space-x-5 justify-between h-full w-full rounded-lg">
           {/* Left Section */}
           <div className="w-[40%] h-full bg-slate-100 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg">
@@ -98,7 +99,7 @@ export default function MainWrapper() {
                     try {
                       const habitId = ele.id;
                       const res = await fetch(
-                        `${backendLink}/db/habits-details/${habitId}`
+                        `${backendLink}/db/habits/details/${habitId}`
                       );
                       const resJson = await res.json();
                       setSelectedHabitDetails(resJson.rows);
