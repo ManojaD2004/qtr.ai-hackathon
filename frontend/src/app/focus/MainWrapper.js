@@ -12,7 +12,7 @@ export default function MainWrapper() {
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
-      <div className="flex-1 text-6xl flex items-center justify-evenly">
+      <div className="flex-1 ml-24 text-6xl flex items-center justify-evenly">
         <h1>This is the {PAGE_NAME} page</h1>
       </div>
     </div>

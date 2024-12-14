@@ -19,7 +19,7 @@ function SidePanel({
   }, []);
   // console.log(userDeatils?.image);
   return (
-    <div className="w-24 bg-slate-50/20 border-r-[1px] border-slate-200 h-full flex flex-col items-center justify-between space-y-7 py-5">
+    <div className="w-24 fixed bg-slate-50/20 border-r-[1px] border-slate-200 h-full flex flex-col items-center justify-between space-y-7 py-5">
       <div className="flex flex-col items-center justify-between space-y-7">
         <SPTopComp plusRoute={plusRoute} />
         <SpImgComp

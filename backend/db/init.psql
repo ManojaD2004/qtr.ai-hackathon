@@ -8,7 +8,7 @@ insert into ping values ( 'Yes, DB is connected, and is Working!' );
 
 create table if not exists users (
    id         serial primary key,
-   email_id   varchar(255) not null,
+   email_id   varchar(255) not null unique,
    user_name  varchar(255) not null,
    user_img   varchar(255) not null,
    created_at timestamp DEFAULT NOW()
