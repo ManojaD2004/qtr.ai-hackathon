@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { PacmanLoader } from "react-spinners";
-import ClipLoader from "react-spinners/ClipLoader";
 import { toast } from "react-toastify";
 
 const override = {

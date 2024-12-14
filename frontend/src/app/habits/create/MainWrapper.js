@@ -207,36 +207,42 @@ export default function MainWrapper() {
                     return;
                   }
                 }
-
-                const userId = await getUserId(session);
-                const habitDeatils = {
-                  createdByUserId: userId,
-                  habitName: habitName,
-                  startDate: startDate.toISOString(),
-                  endDate: endDate.toISOString(),
-                  checkPoints: checkPoints.map((ele) => ({
-                    checkPointName: ele.cName,
-                    deadLine: ele.cDate.toISOString(),
-                  })),
-                };
-                console.log(habitDeatils);
-                const res = await fetch(`${backendLink}/db/v1/habits/create`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(habitDeatils),
-                });
-                const resJson = await res.json();
-                if (resJson.rowCount === 1) {
-                  toast(
-                    `Habit Created with a Habbit Id ${resJson.rows[0].id} 👀`
+                try {
+                  const userId = await getUserId(session);
+                  const habitDeatils = {
+                    createdByUserId: userId,
+                    habitName: habitName,
+                    startDate: startDate.toISOString(),
+                    endDate: endDate.toISOString(),
+                    checkPoints: checkPoints.map((ele) => ({
+                      checkPointName: ele.cName,
+                      deadLine: ele.cDate.toISOString(),
+                    })),
+                  };
+                  console.log(habitDeatils);
+                  const res = await fetch(
+                    `${backendLink}/db/v1/habits/create`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(habitDeatils),
+                    }
                   );
-                }
-                else {
-                  toast(
-                    `Habit Created with a Habbit Id ${resJson.rows[0].id} 👀`
-                  );
+                  const resJson = await res.json();
+                  console.log(resJson);
+                  if (resJson.message === "success") {
+                    toast(`Habit Created 👀`);
+                    setHabitName("");
+                    setCheckPoints([]);
+                    setEndDate(null);
+                  } else {
+                    toast(`Failed to create a Habit 👀`);
+                  }
+                } catch (error) {
+                  console.log(error);
+                  toast(`Server Error 👀`);
                 }
               }}
               className="flex space-x-3 bg-purple-600 w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl mx-3 p-3 rounded-lg"

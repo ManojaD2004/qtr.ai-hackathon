@@ -1,10 +1,10 @@
 import SidePanel from "@/components/SidePanel";
 import constants from "@/helpers/constants";
+import getUserId from "@/helpers/getUserId";
 import moment from "moment";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PAGE_NAME = "habits";
@@ -16,21 +16,31 @@ export default function MainWrapper() {
   const [selectedHabitDetails, setSelectedHabitDetails] = useState(null);
   const [selectedHabitIndex, setSelectedHabitIndex] = useState(null);
   const [habits, setHabits] = useState([]);
+  const [joinedHabits, setJoinedHabits] = useState([]);
   useEffect(() => {
     async function execThis() {
       try {
+        if (status !== "authenticated") {
+          return;
+        }
         const res = await fetch(`${backendLink}/db/v1/habits/all`);
         const resJson = await res.json();
         setHabits(resJson.rows);
         console.log(resJson);
+        const userId = await getUserId(session);
+        const res1 = await fetch(`${backendLink}/db/v1/habits/join/${userId}`);
+        const resJson1 = await res1.json();
+        console.log(resJson1);
+        const newJoinedHabits = resJson1.rows.map((ele) => ele.habit_id);
+        setJoinedHabits(newJoinedHabits);
       } catch (error) {
         toast("Server Error 🥲");
         console.log("Error: ", error);
       }
     }
     execThis();
-  }, []);
-  console.log(session);
+  }, [status]);
+  // console.log(session);
   return (
     <div className="flex h-[100dvh]">
       <SidePanel
@@ -44,7 +54,7 @@ export default function MainWrapper() {
         <div className="w-full min-h-[2px] bg-slate-200"></div>
         <div className="bg-slate-50 text-xl font-semibold flex flex-row space-x-5 justify-between h-full w-full rounded-lg">
           {/* Left Section */}
-          <div className="w-[40%] h-full bg-slate-100 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg">
+          <div className="w-[40%] bg-slate-100 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg shadow-slate-300">
             <div className="flex flex-row items-center">
               <h2 className="font-bold text-slate-700">Join or Create Task</h2>
               <div className="bg-red-400/90 rounded-full ml-4 h-[30px] w-[30px] relative cursor-pointer transition-all duration-300 ease-out group hover:bg-red-300 hover:scale-125">
@@ -78,7 +88,7 @@ export default function MainWrapper() {
               />
             </div>
             <div className="w-full h-[2px] bg-slate-200"></div>
-            <div className="flex flex-col space-y-5 rounded-lg">
+            <div className="flex flex-col h-[400px] space-y-5 rounded-lg overflow-y-auto scrollbar-thin scrollbar-track-slate-200 scrollbar-thumb-blue-600/70">
               {/* {
             "id": 1,
             "habit_name": "Weight Loss",
@@ -137,7 +147,7 @@ export default function MainWrapper() {
             </div>
           </div>
           {/* Right Section */}
-          <div className="w-[60%] h-full bg-purple-50 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg">
+          <div className="w-[60%] h-full bg-purple-50 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg shadow-purple-300">
             {selectedHabitDetails === null ? (
               <div className="flex justify-evenly items-center h-full">
                 <h2 className="text-purple-700 w-fit bg-purple-100/80 shadow-xl p-4 rounded-xl text-4xl font-bold">
@@ -198,18 +208,34 @@ export default function MainWrapper() {
                     ))}
                 </div>
                 <div className="flex justify-between items-center">
-                  <div
-                    onClick={() => {}}
-                    className="flex space-x-3 bg-purple-600 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
-                  >
-                    <div className="text-white">Join Now</div>
-                    <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
-                      <ImgComp
-                        imgSrc="https://img.icons8.com/ios-glyphs/100/rocket.png"
-                        altText="rocket"
-                      />
+                  {joinedHabits.includes(habits[selectedHabitIndex].id) ? (
+                    <div
+                      onClick={() => {}}
+                      className="flex space-x-3 bg-red-500 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-red-700 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
+                    >
+                      <div className="text-white">View Progress</div>
+                      <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
+                        <ImgComp
+                          imgSrc="https://img.icons8.com/ios-filled/100/positive-dynamic.png"
+                          altText="positive-dynamic"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div
+                      onClick={() => {}}
+                      className="flex space-x-3 bg-purple-600 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
+                    >
+                      <div className="text-white">Join Now</div>
+                      <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
+                        <ImgComp
+                          imgSrc="https://img.icons8.com/ios-glyphs/100/rocket.png"
+                          altText="rocket"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="text-red-900 bg-purple-100 shadow-xl rounded-lg p-2">
                     Total People Joined:{" "}
                     {habits[selectedHabitIndex].total_joined}
