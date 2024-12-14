@@ -193,29 +193,51 @@ async function main() {
       });
     }
   });
-  app.post("/db/v1/habits/checkpoints/create", async (req, res) => {
+  app.post("/db/v1/habits/checkpoints/create/main", async (req, res) => {
     try {
       await clientDb.query("BEGIN");
       const joinDeatils = req.body;
-      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create`));
+      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create/all`));
       const result = await clientDb.query(
-        `INSERT INTO user_joined_habits_checkpoints 
-        (joined_habit_id, checkpoint_type, main_checkpoint_id) 
-        VALUES ($1::integer, $2::integer) 
+        `INSERT INTO user_joined_habits_main_checkpoints
+        (joined_habit_id, main_checkpoint_id, message) 
+        VALUES ($1::integer, $2::integer, $3::text) 
         RETURNING id;`,
-        [joinDeatils.habitId, joinDeatils.userId]
+        [joinDeatils.habitId, joinDeatils.mainCheckpointId, joinDeatils.message]
       );
       if (result.rowCount !== 1) {
-        throw Error("Could not join");
+        throw Error("Could not create main checkpoint");
       }
-      const result1 = await clientDb.query(
-        `UPDATE habits_metadata SET
-        total_joined  = total_joined  + 1 
-        WHERE habit_id = $1::integer RETURNING id;`,
-        [joinDeatils.habitId]
+      await clientDb.query("COMMIT");
+      res.status(200).send({
+        rowCount: result.rowCount,
+        rows: result.rows,
+        message: "success",
+        error: null,
+      });
+    } catch (error) {
+      await clientDb.query("ROLLBACK");
+      console.log(error);
+      res.status(500).send({
+        message: "failure",
+        error: error,
+      });
+    }
+  });
+  app.post("/db/v1/habits/checkpoints/create/own", async (req, res) => {
+    try {
+      await clientDb.query("BEGIN");
+      const joinDeatils = req.body;
+      console.log(chalk.red(`HIT /db/v1/habits/checkpoints/create/own`));
+      const result = await clientDb.query(
+        `INSERT INTO user_joined_habits_own_checkpoints
+        (joined_habit_id, message) 
+        VALUES ($1::integer, $2::text) 
+        RETURNING id;`,
+        [joinDeatils.habitId, joinDeatils.message]
       );
-      if (result1.rowCount !== 1) {
-        throw Error("Could not update total_joined");
+      if (result.rowCount !== 1) {
+        throw Error("Could not create own checkpoint");
       }
       await clientDb.query("COMMIT");
       res.status(200).send({

@@ -68,6 +68,7 @@ create table if not exists
       main_checkpoint_id integer not null,
       message text not null,
       finished_worked_at timestamp default now()
+      unique (joined_habit_id, main_checkpoint_id)
    );
 
 alter table habits_checkpoints
