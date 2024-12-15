@@ -71,57 +71,59 @@ export default function MainWrapper() {
         const resJson1 = await res1.json();
         const joinedHabits = resJson1.rows;
         setJoinedHabits(joinedHabits);
-        for (let i = 0; i < joinedHabits.length; i++) {
+        for (let ij = 0; ij < joinedHabits.length; ij++) {
           listOfGoodDate.push(
-            moment(joinedHabits[i].join_at).format("YYYY-MM-DD")
+            moment(joinedHabits[ij].join_at).format("YYYY-MM-DD")
           );
           listOfGoodDateMsg.push({
-            message: `You joined a ${joinedHabits[i].habit_name} on ${moment(
-              joinedHabits[i].join_at
+            message: `You joined a ${joinedHabits[ij].habit_name} on ${moment(
+              joinedHabits[ij].join_at
             ).format("MMM Do YYYY")} 🥰`,
             details: {
-              message: `You joined a ${joinedHabits[i].habit_name} on ${moment(
-                joinedHabits[i].join_at
+              message: `You joined a ${joinedHabits[ij].habit_name} on ${moment(
+                joinedHabits[ij].join_at
               ).format("MMM Do YYYY")} 🥰`,
-              finished_worked_at: joinedHabits[i].join_at,
+              finished_worked_at: joinedHabits[ij].join_at,
             },
             category: "create",
           });
-        }
-        const res2 = await fetch(
-          `${backendLink}/db/v1/habits/savepoints/main/${userId}`
-        );
-        const resJson2 = await res2.json();
-        const savePointsMain = resJson2.rows;
-        for (let i = 0; i < savePointsMain.length; i++) {
-          listOfGoodDate.push(
-            moment(savePointsMain[i].finished_worked_at).format("YYYY-MM-DD")
+          const res2 = await fetch(
+            `${backendLink}/db/v1/habits/savepoints/main/${joinedHabits[ij].id}`
           );
-          listOfGoodDateMsg.push({
-            message: `You created a main savepoint on ${moment(
-              savePointsMain[i].finished_worked_at
-            ).format("MMM Do YYYY")} 🥰`,
-            details: savePointsMain[i],
-            category: "main savepoint",
-          });
-        }
-        console.log(listOfGoodDate);
-        const res3 = await fetch(
-          `${backendLink}/db/v1/habits/savepoints/own/${userId}`
-        );
-        const resJson3 = await res3.json();
-        const savePointsOwn = resJson3.rows;
-        for (let i = 0; i < savePointsOwn.length; i++) {
-          listOfGoodDate.push(
-            moment(savePointsOwn[i].finished_worked_at).format("YYYY-MM-DD")
+          const resJson2 = await res2.json();
+          const savePointsMain = resJson2.rows;
+          for (let i = 0; i < savePointsMain.length; i++) {
+            listOfGoodDate.push(
+              moment(savePointsMain[i].finished_worked_at).format("YYYY-MM-DD")
+            );
+            listOfGoodDateMsg.push({
+              message: `You created a main savepoint on ${moment(
+                savePointsMain[i].finished_worked_at
+              ).format("MMM Do YYYY")} 🥰`,
+              details: savePointsMain[i],
+              habitName: joinedHabits[ij].habit_name,
+              category: "main savepoint",
+            });
+          }
+          console.log(listOfGoodDate);
+          const res3 = await fetch(
+            `${backendLink}/db/v1/habits/savepoints/own/${joinedHabits[ij].id}`
           );
-          listOfGoodDateMsg.push({
-            message: `You created a own savepoint on ${moment(
-              savePointsOwn[i].finished_worked_at
-            ).format("MMM Do YYYY")} 🥰`,
-            details: savePointsOwn[i],
-            category: "own savepoint",
-          });
+          const resJson3 = await res3.json();
+          const savePointsOwn = resJson3.rows;
+          for (let i = 0; i < savePointsOwn.length; i++) {
+            listOfGoodDate.push(
+              moment(savePointsOwn[i].finished_worked_at).format("YYYY-MM-DD")
+            );
+            listOfGoodDateMsg.push({
+              message: `You created a own savepoint on ${moment(
+                savePointsOwn[i].finished_worked_at
+              ).format("MMM Do YYYY")} 🥰`,
+              details: savePointsOwn[i],
+              habitName: joinedHabits[ij].habit_name,
+              category: "own savepoint",
+            });
+          }
         }
         // console.log(listOfGoodDate);
         // console.log(listOfGoodDateMsg);
@@ -159,7 +161,9 @@ export default function MainWrapper() {
           date: `${selectYear}-${i + 1}-${-1}`,
           toolTilDate: "",
         };
-        newCal1.date = moment(`${selectYear}-${i + 1}-${j + 1}`).format("YYYY-MM-DD");
+        newCal1.date = moment(`${selectYear}-${i + 1}-${j + 1}`).format(
+          "YYYY-MM-DD"
+        );
         const goodDateIndex = listOfGoodDate.indexOf(newCal1.date);
         if (goodDateIndex !== -1) {
           newCal1.toolTilDate = listOfGoodDateMsg[goodDateIndex].message;
@@ -389,7 +393,11 @@ export default function MainWrapper() {
                         key={index}
                         className="text-purple-900 bg-purple-100 shadow-lg rounded-lg p-2"
                       >
-                        {index + 1}. Message: <b>{ele.details.message}</b>
+                        {index + 1}. Message:{" "}
+                        <b>
+                          {ele.details.message}{" "}
+                          {ele.habitName && `- in ${ele.habitName}`}
+                        </b>
                         <span className="block pl-6">
                           Finished on :{" "}
                           <i className="text-purple-700">

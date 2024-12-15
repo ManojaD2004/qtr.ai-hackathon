@@ -238,3 +238,45 @@ VALUES
       '2025-05-20 00:00:00'
    ) ON CONFLICT
 DO NOTHING;
+
+-- Fix Squence
+SELECT
+   setval('habits_id_seq', COALESCE(MAX(id), 1))
+FROM
+   habits;
+
+SELECT
+   setval('habits_metadata_id_seq', COALESCE(MAX(id), 1))
+FROM
+   habits_metadata;
+
+SELECT
+   setval('habits_checkpoints_id_seq', COALESCE(MAX(id), 1))
+FROM
+   habits_checkpoints;
+
+SELECT
+   setval('user_joined_habits_id_seq', COALESCE(MAX(id), 1))
+FROM
+   user_joined_habits;
+
+SELECT
+   setval(
+      'user_joined_habits_own_savepoints_id_seq',
+      COALESCE(MAX(id), 1)
+   )
+FROM
+   user_joined_habits_own_savepoints;
+
+SELECT
+   setval(
+      'user_joined_habits_main_savepoints_id_seq',
+      COALESCE(MAX(id), 1)
+   )
+FROM
+   user_joined_habits_main_savepoints;
+
+SELECT
+   setval('users_id_seq', COALESCE(MAX(id), 1))
+FROM
+   users;

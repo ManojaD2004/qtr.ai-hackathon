@@ -213,7 +213,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                     options={options}
                   />
                   <div className="flex items-center">
-                    <div className="inline-block w-44">
+                    <div className="inline-block w-44 font-semibold">
                       Select Finish Date :
                     </div>
                     <DatePicker
@@ -225,7 +225,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                     />
                   </div>
                 </div>
-                <div className="bg-white p-3 shadow-lg rounded-xl flex mt-5">
+                <div className="bg-purple-50 p-3 shadow-lg rounded-xl text-purple-700 flex mt-5">
                   <div className="h-[30px] w-[30px] relative">
                     <ImgComp
                       imgSrc="https://img.icons8.com/material-outlined/100/pencil--v1.png"
@@ -235,7 +235,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                   </div>
                   <textarea
                     type=""
-                    className="outline-none bg-transparent pl-3 w-full h-52 resize-none"
+                    className="outline-none bg-transparent pl-3 w-full h-[190px] resize-none"
                     placeholder="Write a Message"
                     value={msg}
                     onChange={(e) => {
