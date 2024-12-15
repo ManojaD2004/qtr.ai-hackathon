@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# QTR.AI Hackathon Submission
 
-## Getting Started
+## Contents:
 
-First, run the development server:
+1. [Run Locally](#run-locally)
+2. [Tech Stack](#tech-stack)
+3. [Working](#working)
+
+## Run Locally
+
+### 1. Prerequisites Installation
+
+Make sure you have Docker installed.
+
+1. **Docker** - [Install it from their official website](https://www.docker.com/).
+
+### 2. Run the Project
+
+### Start with Docker
+
+Be in the project root directory, and run this command
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+  docker compose up
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+**Client:** [![](https://skillicons.dev/icons?i=expressjs,react,tailwindcss,nextjs)](https://skillicons.dev)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. [NextJS](https://nextjs.org/) - [ReactJS](https://react.dev/) framework for multiple pages with advance features
 
-## Learn More
+2. [TailwindCSS](https://tailwindcss.com/) - CSS framework
 
-To learn more about Next.js, take a look at the following resources:
+3. And many other dependencies. See **package.json** in the ./frontend directory
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Server:** [![](https://skillicons.dev/icons?i=nodejs,postgres,expressjs)](https://skillicons.dev)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. [NodeJS](https://nodejs.org/en) - A JS runtime
 
-## Deploy on Vercel
+2. [ExpressJS](https://expressjs.com/) - Minimalist HTTP server library
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. [PostgreSQL](https://www.postgresql.org/) - A SQL Database used to store all data, metadata, information, entities, relations, etc.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. And many other dependencies. See **package.json** in the ./backend directory
+
+## Working
+
+Sorry please forgive me, I have exams tm (and also yesterday) I can't explain the project nor provide the video link of working prototype. 🥲
+
+Do try it out. Everything is working. 🙄
