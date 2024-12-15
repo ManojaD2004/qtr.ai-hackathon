@@ -23,6 +23,8 @@ FROM base AS runner
 
 WORKDIR /app
 
+COPY ./.env.local ./
+
 COPY --from=temp /app/.next/standalone ./
 
 COPY --from=temp /app/.next/static ./.next/static

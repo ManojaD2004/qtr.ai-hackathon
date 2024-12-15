@@ -14,7 +14,6 @@ create table if not exists
    users (
       id serial primary key,
       email_id varchar(255) not null unique,
-,
       user_name varchar(255) not null,
       user_img varchar(255) not null,
       created_at timestamp default now()
@@ -50,7 +49,8 @@ create table if not exists
       id serial primary key,
       habit_id integer not null,
       user_id integer not null,
-      join_at timestamp default now() unique (habit_id, user_id)
+      join_at timestamp default now(),
+      unique (habit_id, user_id)
    );
 
 create table if not exists
@@ -67,7 +67,8 @@ create table if not exists
       joined_habit_id integer not null,
       main_checkpoint_id integer not null,
       message text not null,
-      finished_worked_at timestamp default now() unique (joined_habit_id, main_checkpoint_id)
+      finished_worked_at timestamp default now(),
+      unique (joined_habit_id, main_checkpoint_id)
    );
 
 alter table habits_checkpoints
@@ -142,7 +143,32 @@ values
    (1, 1, 0) ON CONFLICT
 DO NOTHING;
 
+insert into
+   habits (
+      id,
+      habit_name,
+      start_date,
+      end_date,
+      created_by_user_id
+   )
+values
+   (
+      2,
+      'Full Stack Dev',
+      '2024-12-17 00:00:00',
+      '2025-05-30 00:00:00',
+      1
+   ) ON CONFLICT
+DO NOTHING;
+
+insert into
+   habits_metadata (id, habit_id, total_joined)
+values
+   (2, 2, 0) ON CONFLICT
+DO NOTHING;
+
 -- main checkpoints
+-- Weight Loss Habit Checkpoint
 insert into
    habits_checkpoints (id, habit_id, checkpoint_name, deadline)
 values
@@ -151,22 +177,64 @@ values
       1,
       'Reduce 0.5 KG weight',
       '2024-12-27 00:00:00'
-   ) ON CONFLICT
-DO NOTHING;
-
-insert into
-   habits_checkpoints (id, habit_id, checkpoint_name, deadline)
-values
-   (2, 1, 'Reduce 1.5 KG weight', '2025-1-5 00:00:00') ON CONFLICT
-DO NOTHING;
-
-insert into
-   habits_checkpoints (id, habit_id, checkpoint_name, deadline)
-values
+   ),
+   (2, 1, 'Reduce 1.5 KG weight', '2025-1-5 00:00:00'),
    (
       3,
       1,
       'Reduce 3 KG weight in total',
       '2025-1-15 00:00:00'
+   ) ON CONFLICT
+DO NOTHING;
+
+-- Full Stack Dev Habit
+INSERT INTO
+   habits_checkpoints (id, habit_id, checkpoint_name, deadline)
+VALUES
+   (4, 2, 'Complete HTML', '2024-12-31 00:00:00'),
+   (5, 2, 'Master CSS', '2025-01-14 00:00:00'),
+   (
+      6,
+      2,
+      'Learn JavaScript Basics',
+      '2025-01-28 00:00:00'
+   ),
+   (
+      7,
+      2,
+      'Understand DOM Manipulation',
+      '2025-02-11 00:00:00'
+   ),
+   (8, 2, 'Learn React.js', '2025-02-25 00:00:00'),
+   (9, 2, 'Master Node.js', '2025-03-11 00:00:00'),
+   (
+      10,
+      2,
+      'Understand Express.js',
+      '2025-03-25 00:00:00'
+   ),
+   (
+      11,
+      2,
+      'Learn Database Integration (PostgreSQL)',
+      '2025-04-08 00:00:00'
+   ),
+   (
+      12,
+      2,
+      'Complete RESTful APIs',
+      '2025-04-22 00:00:00'
+   ),
+   (
+      13,
+      2,
+      'Master Full Stack Integration',
+      '2025-05-06 00:00:00'
+   ),
+   (
+      14,
+      2,
+      'Build Final Full Stack Project',
+      '2025-05-20 00:00:00'
    ) ON CONFLICT
 DO NOTHING;

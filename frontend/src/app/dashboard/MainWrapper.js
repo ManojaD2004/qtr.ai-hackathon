@@ -105,6 +105,7 @@ export default function MainWrapper() {
             category: "main savepoint",
           });
         }
+        console.log(listOfGoodDate);
         const res3 = await fetch(
           `${backendLink}/db/v1/habits/savepoints/own/${userId}`
         );
@@ -158,7 +159,7 @@ export default function MainWrapper() {
           date: `${selectYear}-${i + 1}-${-1}`,
           toolTilDate: "",
         };
-        newCal1.date = `${selectYear}-${i + 1}-${j + 1}`;
+        newCal1.date = moment(`${selectYear}-${i + 1}-${j + 1}`).format("YYYY-MM-DD");
         const goodDateIndex = listOfGoodDate.indexOf(newCal1.date);
         if (goodDateIndex !== -1) {
           newCal1.toolTilDate = listOfGoodDateMsg[goodDateIndex].message;
@@ -186,7 +187,7 @@ export default function MainWrapper() {
     }
     calHelp[0].totalDays -= skipDays;
     return newCal;
-  }, [listOfGoodDate, selectYear]);
+  }, [listOfGoodDate, selectYear, listOfGoodDateMsg]);
   const selectDateMessage = useMemo(() => {
     if (selectDate === "") {
       return [];
@@ -199,7 +200,7 @@ export default function MainWrapper() {
     }
     console.log(selectDateMessage);
     return selectDateMessage;
-  }, [selectDate]);
+  }, [selectDate, listOfGoodDate, listOfGoodDateMsg]);
   return (
     <div className="flex">
       <SidePanel
@@ -338,22 +339,25 @@ export default function MainWrapper() {
               <div className="w-full h-[2px] bg-slate-200"></div>
               <div className="flex flex-col h-[400px] space-y-5 rounded-lg overflow-y-auto scrollbar-thin scrollbar-track-slate-200 scrollbar-thumb-blue-600/70">
                 {joinedHabits.map((ele, index) => (
-                  <div
+                  <a
+                    target="_blank"
+                    href={`/habits/habit/${ele.habit_id}?joinid=${ele.id}`}
                     key={index}
-                    className="w-full bg-slate-50 shadow-lg p-2 rounded-lg cursor-pointer"
                   >
-                    <div className="flex justify-between w-full items-center">
-                      <div>
-                        {index + 1}. {ele.habit_name}
+                    <div className="w-full bg-slate-50 shadow-lg p-2 rounded-lg cursor-pointer">
+                      <div className="flex justify-between w-full items-center">
+                        <div>
+                          {index + 1}. {ele.habit_name}
+                        </div>
+                      </div>
+                      <div className="text-slate-700 pl-6 text-base">
+                        Joined At:{" "}
+                        <b className="text-slate-800">
+                          {`${moment(ele.join_at).format("MMM Do YYYY")}`}
+                        </b>
                       </div>
                     </div>
-                    <div className="text-slate-700 pl-6 text-base">
-                      Joined At:{" "}
-                      <b className="text-slate-800">
-                        {`${moment(ele.join_at).format("MMM Do YYYY")}`}
-                      </b>
-                    </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>

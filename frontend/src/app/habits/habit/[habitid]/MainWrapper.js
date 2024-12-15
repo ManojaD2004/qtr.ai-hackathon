@@ -2,11 +2,13 @@ import SidePanel from "@/components/SidePanel";
 import constants from "@/helpers/constants";
 import getUserId from "@/helpers/getUserId";
 import moment from "moment";
+import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
+import { DatePicker } from "@mui/x-date-pickers";
 
 const PAGE_NAME = "habits";
 const backendLink = constants.backEndLink;
@@ -19,6 +21,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
   const [checkpointDone, setCheckpointDone] = useState([]);
   const [habitsDetails, setHabitsDetails] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [finishDate, setFinishDate] = useState(dayjs(new Date()));
   const [options, setOptions] = useState([
     {
       value: -1,
@@ -29,8 +32,11 @@ export default function MainWrapper({ habitId, joinHabitId }) {
     async function execThis() {
       try {
         console.log(habitId);
-        if (status !== "authenticated" || !habitId) {
+        if (status !== "authenticated") {
           return;
+        }
+        if (!habitId || !joinHabitId) {
+          toast("habit id or join habit id not founded!");
         }
         const res = await fetch(
           `${backendLink}/db/v1/habits/details/checkpoints/${habitId}`
@@ -75,7 +81,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
       }
     }
     execThis();
-  }, [status, habitId]);
+  }, [status, habitId, joinHabitId]);
   // console.log(session);
   return (
     <div className="flex">
@@ -197,13 +203,28 @@ export default function MainWrapper({ habitId, joinHabitId }) {
             <div className="flex p-2 flex-row bg-purple-100 shadow-lg justify-between rounded-lg w-full">
               <div className="text-purple-700">Create a Save Points 👇</div>
             </div>
-            <div className="flex text-lg flex-col rounded-lg shadow-xl bg-purple-100 space-y-4 w-full h-72">
+            <div className="flex text-lg flex-col text-purple-600 rounded-lg shadow-xl bg-purple-100 space-y-4 w-full h-72">
               <form>
-                <Select
-                  value={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
-                />
+                <div className="flex items-center justify-between">
+                  <Select
+                    className="w-56"
+                    value={selectedOption}
+                    onChange={setSelectedOption}
+                    options={options}
+                  />
+                  <div className="flex items-center">
+                    <div className="inline-block w-44">
+                      Select Finish Date :
+                    </div>
+                    <DatePicker
+                      className="bg-slate-50"
+                      value={finishDate}
+                      onChange={(d) => {
+                        setFinishDate(d);
+                      }}
+                    />
+                  </div>
+                </div>
                 <div className="bg-white p-3 shadow-lg rounded-xl flex mt-5">
                   <div className="h-[30px] w-[30px] relative">
                     <ImgComp
@@ -233,7 +254,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                   try {
                     if (selectedOption.value === -1) {
                       const res1 = await fetch(
-                        `${backendLink}/db/v1/habits/savepoints/create/own`,
+                        `${backendLink}/db/v1/habits/savepoints/create/own?testing=true`,
                         {
                           method: "POST",
                           headers: {
@@ -242,6 +263,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                           body: JSON.stringify({
                             message: msg,
                             joinHabitId: joinHabitId,
+                            finishedWorkedAt: finishDate.toISOString(),
                           }),
                         }
                       );
@@ -254,7 +276,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                       }
                     } else {
                       const res1 = await fetch(
-                        `${backendLink}/db/v1/habits/savepoints/create/main`,
+                        `${backendLink}/db/v1/habits/savepoints/create/main?testing=true`,
                         {
                           method: "POST",
                           headers: {
@@ -264,6 +286,7 @@ export default function MainWrapper({ habitId, joinHabitId }) {
                             message: msg,
                             joinHabitId: joinHabitId,
                             mainCheckpointId: selectedOption.value,
+                            finishedWorkedAt: finishDate.toISOString(),
                           }),
                         }
                       );

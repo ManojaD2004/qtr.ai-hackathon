@@ -14,7 +14,6 @@ create table if not exists
    users (
       id serial primary key,
       email_id varchar(255) not null unique,
-,
       user_name varchar(255) not null,
       user_img varchar(255) not null,
       created_at timestamp default now()
@@ -50,7 +49,8 @@ create table if not exists
       id serial primary key,
       habit_id integer not null,
       user_id integer not null,
-      join_at timestamp default now() unique (habit_id, user_id)
+      join_at timestamp default now(),
+      unique (habit_id, user_id)
    );
 
 create table if not exists
@@ -67,7 +67,8 @@ create table if not exists
       joined_habit_id integer not null,
       main_checkpoint_id integer not null,
       message text not null,
-      finished_worked_at timestamp default now() unique (joined_habit_id, main_checkpoint_id)
+      finished_worked_at timestamp default now(),
+      unique (joined_habit_id, main_checkpoint_id)
    );
 
 alter table habits_checkpoints
