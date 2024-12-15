@@ -1,5 +1,6 @@
 import SidePanel from "@/components/SidePanel";
 import { useSession } from "next-auth/react";
+import { PacmanLoader } from "react-spinners";
 const PAGE_NAME = "notes";
 
 export default function MainWrapper() {
@@ -12,8 +13,15 @@ export default function MainWrapper() {
         isLoggedIn={status === "authenticated"}
         userDeatils={status === "authenticated" ? session.user : {}}
       />
-      <div className="flex-1 ml-24 text-6xl flex items-center justify-evenly">
-        <h1>This is the {PAGE_NAME} page</h1>
+      <div className="flex-1 text-6xl flex flex-col items-center justify-evenly space-y-2">
+        <div className="flex flex-col space-y-6">
+          <PacmanLoader
+            className="text-purple-400"
+            color="rgb(192, 132, 252)"
+            size={110}
+          />
+          <h2>This is the {PAGE_NAME} page</h2>
+        </div>
       </div>
     </div>
   );

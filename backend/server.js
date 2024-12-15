@@ -198,7 +198,9 @@ async function main() {
   app.get("/db/v1/habits/join/:userId", async (req, res) => {
     try {
       const userId = req.params.userId;
-      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      console.log(
+        chalk.red("HIT /db/v1/habits/join/:userId, userId : " + userId)
+      );
       const result = await clientDb.query(
         `SELECT uj.id, uj.habit_id, uj.user_id, uj.join_at, 
         h.habit_name, h.created_at FROM user_joined_habits AS uj LEFT 
@@ -214,7 +216,12 @@ async function main() {
   app.get("/db/v1/habits/savepoints/main/:joinedHabitId", async (req, res) => {
     try {
       const joinedHabitId = req.params.joinedHabitId;
-      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      console.log(
+        chalk.red(
+          "HIT db/v1/habits/savepoints/main/:joinedHabitId, joinedHabitId : ",
+          +joinedHabitId
+        )
+      );
       const result = await clientDb.query(
         `SELECT ms.id, ms.joined_habit_id, ms.main_checkpoint_id,
         ms.message, ms.finished_worked_at FROM user_joined_habits_main_savepoints AS ms
@@ -230,7 +237,12 @@ async function main() {
   app.get("/db/v1/habits/savepoints/own/:joinedHabitId", async (req, res) => {
     try {
       const joinedHabitId = req.params.joinedHabitId;
-      console.log(chalk.red("HIT /db/v1/habits/join/:userId"));
+      console.log(
+        chalk.red(
+          "HIT db/v1/habits/savepoints/own/:joinedHabitId, joinedHabitId : ",
+          +joinedHabitId
+        )
+      );
       const result = await clientDb.query(
         `SELECT os.id, os.joined_habit_id,
         os.message, os.finished_worked_at FROM user_joined_habits_own_savepoints AS os
@@ -247,7 +259,7 @@ async function main() {
     try {
       await clientDb.query("BEGIN");
       await clientDb.query("SET TIME ZONE 'Asia/Kolkata';");
-      console.log(chalk.red(`HIT /db/v1/habits/savepoints/create/all`));
+      console.log(chalk.red(`HIT /db/v1/habits/savepoints/create/main`));
       const joinDeatils = req.body;
       const testing = Boolean(req.query.testing);
       let result;

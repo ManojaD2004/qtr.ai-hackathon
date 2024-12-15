@@ -4,15 +4,16 @@ import getUserId from "@/helpers/getUserId";
 import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
+import { PacmanLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-tooltip/dist/react-tooltip.css";
 const PAGE_NAME = "dashboard";
 const backendLink = constants.backEndLink;
 
-const cal2024 = [
+const calHelp = [
   { monthName: "Jan", totalDays: 31, skipVal: 0 },
-  { monthName: "Feb", totalDays: 29, skipVal: 0 },
+  { monthName: "Feb", totalDays: 28, skipVal: 0 },
   { monthName: "Mar", totalDays: 31, skipVal: 0 },
   { monthName: "Apr", totalDays: 30, skipVal: 0 },
   { monthName: "May", totalDays: 31, skipVal: 0 },
@@ -27,6 +28,11 @@ const cal2024 = [
 export default function MainWrapper() {
   const { data: session, status } = useSession();
   const [userDeatils, setUserDetails] = useState(null);
+  const [listOfGoodDate, setListOfGoodDate] = useState([]);
+  const [listOfGoodDateMsg, setListOfGoodDateMsg] = useState([]);
+  const [selectYear, setSelectYear] = useState("2024");
+  const [joinedHabits, setJoinedHabits] = useState([]);
+  const [selectDate, setSelectDate] = useState("");
 
   useEffect(() => {
     async function execThis() {
@@ -40,9 +46,86 @@ export default function MainWrapper() {
         const resJson = await res.json();
         if (resJson.rowCount !== 1) {
           toast("User not Found 🥲");
+          return;
         }
         setUserDetails(resJson.rows[0]);
+        const listOfGoodDate = [];
+        const listOfGoodDateMsg = [];
+        listOfGoodDate.push(
+          moment(resJson.rows[0].created_at).format("YYYY-MM-DD")
+        );
+        listOfGoodDateMsg.push({
+          message: `Your account created on ${moment(
+            resJson.rows[0].created_at
+          ).format("MMM Do YYYY")} 🥰`,
+          details: {
+            message: `Your account created on ${moment(
+              resJson.rows[0].created_at
+            ).format("MMM Do YYYY")} 🥰`,
+            finished_worked_at: resJson.rows[0].created_at,
+          },
+          category: "create",
+        });
         const userId = await getUserId(session);
+        const res1 = await fetch(`${backendLink}/db/v1/habits/join/${userId}`);
+        const resJson1 = await res1.json();
+        const joinedHabits = resJson1.rows;
+        setJoinedHabits(joinedHabits);
+        for (let i = 0; i < joinedHabits.length; i++) {
+          listOfGoodDate.push(
+            moment(joinedHabits[i].join_at).format("YYYY-MM-DD")
+          );
+          listOfGoodDateMsg.push({
+            message: `You joined a ${joinedHabits[i].habit_name} on ${moment(
+              joinedHabits[i].join_at
+            ).format("MMM Do YYYY")} 🥰`,
+            details: {
+              message: `You joined a ${joinedHabits[i].habit_name} on ${moment(
+                joinedHabits[i].join_at
+              ).format("MMM Do YYYY")} 🥰`,
+              finished_worked_at: joinedHabits[i].join_at,
+            },
+            category: "create",
+          });
+        }
+        const res2 = await fetch(
+          `${backendLink}/db/v1/habits/savepoints/main/${userId}`
+        );
+        const resJson2 = await res2.json();
+        const savePointsMain = resJson2.rows;
+        for (let i = 0; i < savePointsMain.length; i++) {
+          listOfGoodDate.push(
+            moment(savePointsMain[i].finished_worked_at).format("YYYY-MM-DD")
+          );
+          listOfGoodDateMsg.push({
+            message: `You created a main savepoint on ${moment(
+              savePointsMain[i].finished_worked_at
+            ).format("MMM Do YYYY")} 🥰`,
+            details: savePointsMain[i],
+            category: "main savepoint",
+          });
+        }
+        const res3 = await fetch(
+          `${backendLink}/db/v1/habits/savepoints/own/${userId}`
+        );
+        const resJson3 = await res3.json();
+        const savePointsOwn = resJson3.rows;
+        for (let i = 0; i < savePointsOwn.length; i++) {
+          listOfGoodDate.push(
+            moment(savePointsOwn[i].finished_worked_at).format("YYYY-MM-DD")
+          );
+          listOfGoodDateMsg.push({
+            message: `You created a own savepoint on ${moment(
+              savePointsOwn[i].finished_worked_at
+            ).format("MMM Do YYYY")} 🥰`,
+            details: savePointsOwn[i],
+            category: "own savepoint",
+          });
+        }
+        // console.log(listOfGoodDate);
+        // console.log(listOfGoodDateMsg);
+        setListOfGoodDate(listOfGoodDate);
+        setListOfGoodDateMsg(listOfGoodDateMsg);
       } catch (error) {
         toast("Server Error 🥲");
         console.log("Error: ", error);
@@ -50,17 +133,14 @@ export default function MainWrapper() {
     }
     execThis();
   }, [status]);
-  const listOfGoodDate = useMemo(() => {
-    const listOfGoodDate = [];
-    if (userDeatils) {
-      listOfGoodDate.push(moment(userDeatils.created_at).format("YYYY-MM-DD"));
-    }
-    console.log(listOfGoodDate);
-    return listOfGoodDate;
-  }, [userDeatils]);
   const newCal = useMemo(() => {
     const newCal = [];
-    const skipDays = new Date("2024-1-1").getDay();
+    const skipDays = new Date(`${selectYear}-1-1`).getDay();
+    if (parseInt(selectYear) % 4 === 0) {
+      calHelp[1].totalDays = 29;
+    } else {
+      calHelp[1].totalDays = 28;
+    }
     for (let k = 0; k < skipDays; k++) {
       newCal.push({
         color: "",
@@ -70,46 +150,58 @@ export default function MainWrapper() {
       });
     }
 
-    for (let i = 0; i < cal2024.length; i++) {
-      const newCal1 = Array.from({ length: cal2024[i].totalDays }, () => ({
-        color: cal2024[i].color,
-        monthName: cal2024[i].monthName,
-        date: `2024-${i + 1}-${-1}`,
-        toolTilDate: "",
-      }));
-      for (let j = 0; j < cal2024[i].totalDays; j++) {
-        newCal1[j].date = `2024-${i + 1}-${j + 1}`;
-        if (listOfGoodDate.includes(newCal1[j].date)) {
-          newCal1[j].toolTilDate = `You account created on ${moment(
-            `2024-${i + 1}-${j + 1}`
-          ).format("MMMM Do YYYY")} 🥰`;
-          newCal1[j].color = "rgb(152, 85, 222)";
+    for (let i = 0; i < calHelp.length; i++) {
+      for (let j = 0; j < calHelp[i].totalDays; j++) {
+        const newCal1 = {
+          color: calHelp[i].color,
+          monthName: calHelp[i].monthName,
+          date: `${selectYear}-${i + 1}-${-1}`,
+          toolTilDate: "",
+        };
+        newCal1.date = `${selectYear}-${i + 1}-${j + 1}`;
+        const goodDateIndex = listOfGoodDate.indexOf(newCal1.date);
+        if (goodDateIndex !== -1) {
+          newCal1.toolTilDate = listOfGoodDateMsg[goodDateIndex].message;
+          newCal1.color = "rgb(152, 85, 222)";
         } else {
-          newCal1[j].toolTilDate = `No Actions on ${moment(
-            `2024-${i + 1}-${j + 1}`
-          ).format("MMMM Do YYYY")} 🙄`;
-          newCal1[j].color = "rgb(203, 213, 225)";
+          newCal1.toolTilDate = `No Actions on ${moment(
+            `${newCal1.date}`
+          ).format("MMM Do YYYY")} 🙄`;
+          newCal1.color = "rgb(203, 213, 225)";
         }
-        newCal.push(newCal1[j]);
+        newCal.push(newCal1);
       }
     }
-    cal2024[0].totalDays += skipDays;
+    calHelp[0].totalDays += skipDays;
     let remainDays = 0;
-    for (let i = 0; i < cal2024.length - 1; i++) {
-      let days = cal2024[i].totalDays;
+    for (let i = 0; i < calHelp.length - 1; i++) {
+      let days = calHelp[i].totalDays;
       days = days - 14;
       if (remainDays !== 0) {
         days = days - (7 - remainDays);
       }
       let skipDay = Math.ceil(days / 7);
-      cal2024[i + 1].skipVal = skipDay;
+      calHelp[i + 1].skipVal = skipDay;
       remainDays = days % 7;
     }
-    cal2024[0].totalDays -= skipDays;
+    calHelp[0].totalDays -= skipDays;
     return newCal;
-  }, [listOfGoodDate]);
+  }, [listOfGoodDate, selectYear]);
+  const selectDateMessage = useMemo(() => {
+    if (selectDate === "") {
+      return [];
+    }
+    const selectDateMessage = [];
+    for (let i = 0; i < listOfGoodDate.length; i++) {
+      if (listOfGoodDate[i] === selectDate) {
+        selectDateMessage.push(listOfGoodDateMsg[i]);
+      }
+    }
+    console.log(selectDateMessage);
+    return selectDateMessage;
+  }, [selectDate]);
   return (
-    <div className="flex h-[100dvh]">
+    <div className="flex">
       <SidePanel
         routePage={PAGE_NAME}
         isLoggedIn={status === "authenticated"}
@@ -120,7 +212,7 @@ export default function MainWrapper() {
         <div className="w-full h-full p-6 space-y-6">
           <div className="flex fex-row items-center space-x-16">
             <div
-              onClick={() => toast("User not found, please login in 🥲")}
+              onClick={() => toast("Hi 😻")}
               className="w-20 h-20 relative rounded-full overflow-hidden shadow-xl ring-purple-400/50 ring-4 shadow-purple-300"
             >
               <ImgComp
@@ -167,7 +259,7 @@ export default function MainWrapper() {
               </div>
               <div className="flex w-full flex-col space-y-1">
                 <div className="flex flex-nowrap">
-                  {cal2024.map((ele, index) => (
+                  {calHelp.map((ele, index) => (
                     <div
                       key={index}
                       style={{
@@ -188,6 +280,7 @@ export default function MainWrapper() {
                       ></div>
                     ) : (
                       <CalDate
+                        handleClick={() => setSelectDate(ele1.date)}
                         key={index1}
                         color={ele1.color}
                         tooltipData={ele1.toolTilDate}
@@ -199,11 +292,124 @@ export default function MainWrapper() {
             </div>
 
             <div className="w-auto px-6  flex flex-col items-center space-y-4 text-sm font-semibold ">
-              <YearButton yearName="2027" />
-              <YearButton yearName="2026" />
-              <YearButton yearName="2025" />
-              <YearButton yearName="2024" isSelected={true} />
-              <YearButton yearName="2023" />
+              <YearButton
+                handleClick={() => setSelectYear("2027")}
+                yearName="2027"
+                isSelected={selectYear === "2027"}
+              />
+              <YearButton
+                handleClick={() => setSelectYear("2026")}
+                yearName="2026"
+                isSelected={selectYear === "2026"}
+              />
+              <YearButton
+                handleClick={() => setSelectYear("2025")}
+                yearName="2025"
+                isSelected={selectYear === "2025"}
+              />
+              <YearButton
+                handleClick={() => setSelectYear("2024")}
+                yearName="2024"
+                isSelected={selectYear === "2024"}
+              />
+              <YearButton
+                handleClick={() => setSelectYear("2023")}
+                yearName="2023"
+                isSelected={selectYear === "2023"}
+              />
+            </div>
+          </div>
+          {/* Bottom Section */}
+          <div className="flex flex-row space-x-5 text-xl font-semibold mb-8">
+            {/* Left Section */}
+            <div className="w-[30%] bg-slate-100 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg shadow-slate-300">
+              <div className="flex flex-row items-center">
+                <h2 className="font-bold text-slate-700">Your Joined Habits</h2>
+                <div className="r ml-4 h-[30px] w-[30px] relative cursor-pointer transition-all duration-300 ease-out group hover:scale-125">
+                  <div className="w-3/4 h-3/4 absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
+                    <ImgComp
+                      imgSrc="https://img.icons8.com/ios-filled/100/sunrise.png"
+                      altText="sunrise"
+                      invertPer={0}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="w-full h-[2px] bg-slate-200"></div>
+              <div className="flex flex-col h-[400px] space-y-5 rounded-lg overflow-y-auto scrollbar-thin scrollbar-track-slate-200 scrollbar-thumb-blue-600/70">
+                {joinedHabits.map((ele, index) => (
+                  <div
+                    key={index}
+                    className="w-full bg-slate-50 shadow-lg p-2 rounded-lg cursor-pointer"
+                  >
+                    <div className="flex justify-between w-full items-center">
+                      <div>
+                        {index + 1}. {ele.habit_name}
+                      </div>
+                    </div>
+                    <div className="text-slate-700 pl-6 text-base">
+                      Joined At:{" "}
+                      <b className="text-slate-800">
+                        {`${moment(ele.join_at).format("MMM Do YYYY")}`}
+                      </b>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Right Section */}
+            <div className="w-[70%] bg-purple-50 p-3 min-h-[500px] flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg shadow-purple-300">
+              {selectDate === "" ? (
+                <div className="flex flex-col space-y-7 justify-center items-center  h-full">
+                  <h2 className="text-purple-700 w-fit bg-purple-100/80 shadow-xl p-4 rounded-xl text-4xl font-bold">
+                    None date selected 🙄
+                  </h2>
+                  <PacmanLoader
+                    className="text-purple-400"
+                    color="rgb(192, 132, 252)"
+                    size={70}
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="text-purple-700 font-bold">
+                    Actions on
+                    <span className="block text-purple-900">
+                      <b>{moment(selectDate).format("MMMM Do YYYY")}</b>
+                    </span>
+                  </div>
+                  <div className="w-full h-[2px] bg-slate-200"></div>
+                  <div className="flex flex-col rounded-lg  space-y-4 w-full h-72 scrollbar-thin scrollbar-thumb-purple-800/50 scrollbar-track-purple-100  overflow-y-auto">
+                    {selectDateMessage.map((ele, index) => (
+                      <div
+                        key={index}
+                        className="text-purple-900 bg-purple-100 shadow-lg rounded-lg p-2"
+                      >
+                        {index + 1}. Message: <b>{ele.details.message}</b>
+                        <span className="block pl-6">
+                          Finished on :{" "}
+                          <i className="text-purple-700">
+                            {`${moment(ele.details.finished_worked_at).format(
+                              "MMMM Do YYYY, h:mm:ss a"
+                            )}`}
+                          </i>
+                        </span>
+                        <span className="block pl-6">
+                          Category :{" "}
+                          <i className="text-purple-700">{`${ele.category}`}</i>
+                        </span>
+                      </div>
+                    ))}
+                    {selectDateMessage.length === 0 && (
+                      <div className="flex  justify-evenly items-center h-[500px]">
+                        <h2 className="text-purple-700 w-fit bg-purple-100/80 shadow-xl p-4 rounded-xl text-4xl font-bold">
+                          No actions on this date selected 👀
+                        </h2>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -212,10 +418,15 @@ export default function MainWrapper() {
   );
 }
 
-function CalDate({ color = "red", tooltipData = "<tooltip placeholder>" }) {
+function CalDate({
+  color = "red",
+  tooltipData = "<tooltip placeholder>",
+  handleClick = null,
+}) {
   return (
     <a data-tooltip-id="cal-date-tooltip" data-tooltip-content={tooltipData}>
       <div
+        onClick={handleClick}
         style={{
           backgroundColor: color,
         }}

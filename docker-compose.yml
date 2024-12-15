@@ -2,7 +2,7 @@ version: "3.9"
 services:
   server:
     build:
-      context: ./
+      context: ./backend
       dockerfile: dockerfile
     ports:
       - "9000:9000"

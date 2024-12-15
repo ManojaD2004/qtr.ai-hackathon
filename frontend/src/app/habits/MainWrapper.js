@@ -17,6 +17,7 @@ export default function MainWrapper() {
   const [selectedHabitIndex, setSelectedHabitIndex] = useState(null);
   const [habits, setHabits] = useState([]);
   const [joinedHabits, setJoinedHabits] = useState([]);
+  const [joinedHabitsId, setJoinedHabitsId] = useState([]);
   useEffect(() => {
     async function execThis() {
       try {
@@ -32,6 +33,8 @@ export default function MainWrapper() {
         const resJson1 = await res1.json();
         console.log(resJson1);
         const newJoinedHabits = resJson1.rows.map((ele) => ele.habit_id);
+        const newJoinedHabitsId = resJson1.rows.map((ele) => ele.id);
+        setJoinedHabitsId(newJoinedHabitsId);
         setJoinedHabits(newJoinedHabits);
       } catch (error) {
         toast("Server Error 🥲");
@@ -56,7 +59,7 @@ export default function MainWrapper() {
           {/* Left Section */}
           <div className="w-[40%] bg-slate-100 p-3 flex flex-col space-y-4 rounded-lg overflow-hidden shadow-lg shadow-slate-300">
             <div className="flex flex-row items-center">
-              <h2 className="font-bold text-slate-700">Join or Create Task</h2>
+              <h2 className="font-bold text-slate-700">Join or Create Habit</h2>
               <div className="bg-red-400/90 rounded-full ml-4 h-[30px] w-[30px] relative cursor-pointer transition-all duration-300 ease-out group hover:bg-red-300 hover:scale-125">
                 <a href="/habits/create" target="_blank">
                   <div className="w-3/4 h-3/4 absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
@@ -209,21 +212,59 @@ export default function MainWrapper() {
                 </div>
                 <div className="flex justify-between items-center">
                   {joinedHabits.includes(habits[selectedHabitIndex].id) ? (
-                    <div
-                      onClick={() => {}}
-                      className="flex space-x-3 bg-red-500 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-red-700 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
+                    <a
+                      href={`/habits/habit/${
+                        habits[selectedHabitIndex].id
+                      }?joinid=${
+                        joinedHabitsId[
+                          joinedHabits.indexOf(habits[selectedHabitIndex].id)
+                        ]
+                      }`}
+                      target="_blank"
                     >
-                      <div className="text-white">View Progress</div>
-                      <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
-                        <ImgComp
-                          imgSrc="https://img.icons8.com/ios-filled/100/positive-dynamic.png"
-                          altText="positive-dynamic"
-                        />
+                      <div className="flex space-x-3 bg-red-500 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-red-700 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg">
+                        <div className="text-white">View Progress</div>
+                        <div className="h-[30px] w-[30px] relative transition-all ease-out duration-300 group-hover:!invert-[10%]">
+                          <ImgComp
+                            imgSrc="https://img.icons8.com/ios-filled/100/positive-dynamic.png"
+                            altText="positive-dynamic"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </a>
                   ) : (
                     <div
-                      onClick={() => {}}
+                      onClick={async () => {
+                        const userId = await getUserId(session);
+                        try {
+                          const res1 = await fetch(
+                            `${backendLink}/db/v1/habits/join`,
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                userId: userId,
+                                habitId: habits[selectedHabitIndex].id,
+                              }),
+                            }
+                          );
+                          const resJson1 = await res1.json();
+                          if (resJson1.message !== "success") {
+                            toast("Failed to Create A Savepoint! 👀");
+                            return;
+                          } else {
+                            toast("Successfully Joined a Habit! 👀");
+                          }
+                          setTimeout(() => {
+                            window.location.reload();
+                          }, 1500);
+                        } catch (error) {
+                          console.log(error);
+                          toast("Server error. 👀");
+                        }
+                      }}
                       className="flex space-x-3 bg-purple-600 shadow-xl w-fit transition-all ease-out duration-300 group hover:bg-purple-900 hover:scale-110 cursor-pointer text-xl p-3 rounded-lg"
                     >
                       <div className="text-white">Join Now</div>
