@@ -1,5 +1,5 @@
 const constants = {
-  backEndLink: "http://localhost:9000",
+  backEndLink: "http://server:9000",
 };
 
 export default constants;
